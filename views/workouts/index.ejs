@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>My Workouts</h1>
+    <p>Welcome, <%= username %>! | <a href="/dashboard">Dashboard</a> | <a href="/users/logout">Logout</a></p>
+    
+    <a href="/workouts/add" class="button">Add New Workout</a>
+    
+    <% if (workouts.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% workouts.forEach(workout => { %>
+                    <tr>
+                        <td><%= new Date(workout.date).toLocaleDateString() %></td>
+                        <td><%= workout.type %></td>
+                        <td><%= workout.notes %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No workouts found. Start tracking today!</p>
+    <% } %>
+</body>
+</html>
