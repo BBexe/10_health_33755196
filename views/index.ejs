@@ -11,7 +11,7 @@
     <p>Your fitness journey starts here.</p>
     
     <% if (typeof user !== 'undefined' && user) { %>
-        <p>Hello, <%= user %>! <a href="/dashboard">Go to Dashboard</a></p>
+        <p>Hello, <%= user.username %>! <a href="/dashboard">Go to Dashboard</a></p>
     <% } else { %>
         <p>
             <a href="/users/login">Login</a> | 

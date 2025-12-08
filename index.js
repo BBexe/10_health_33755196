@@ -12,6 +12,10 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Middleware
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -22,25 +26,13 @@ app.use(session({
 }));
 
 // Routes
+const mainRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const workoutsRouter = require('./routes/workouts');
+const scheduleRouter = require('./routes/schedule');
 
+app.use('/', mainRouter);
 app.use('/users', usersRouter);
-app.use('/workouts', workoutsRouter);
-
-// Basic Route
-app.get('/', (req, res) => {
-    res.render('index', { title: 'Gym&Gain', user: req.session.username });
-});
-
-// Dashboard Route
-app.get('/dashboard', (req, res) => {
-    if (req.session.userId) {
-        res.render('dashboard', { username: req.session.username });
-    } else {
-        res.redirect('/users/login');
-    }
-});
+app.use('/schedule', scheduleRouter);
 
 // Start server
 const PORT = process.env.PORT || 3000;

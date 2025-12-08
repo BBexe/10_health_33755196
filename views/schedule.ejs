@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Class Schedule</h1>
+    <p>Welcome, <%= user ? user.username : 'Guest' %>! | <a href="/dashboard">Dashboard</a> | <a href="/users/logout">Logout</a></p>
+    
+    <% if (schedule.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Activity</th>
+                    <th>Description</th>
+                    <th>Cost</th>
+                    <th>Capacity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% schedule.forEach(item => { %>
+                    <tr>
+                        <td><%= item.day %></td>
+                        <td><%= item.start_time %></td>
+                        <td><%= item.name %></td>
+                        <td><%= item.description %></td>
+                        <td><%= item.cost %> tokens</td>
+                        <td><%= item.capacity %></td>
+                        <td>
+                            <form action="/schedule/book" method="POST">
+                                <input type="hidden" name="schedule_id" value="<%= item.id %>">
+                                <button type="submit">Book</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No classes scheduled.</p>
+    <% } %>
+</body>
+</html>

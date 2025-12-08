@@ -7,9 +7,37 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <h1>Welcome, <%= username %>!</h1>
+    <h1>Welcome, <%= (typeof user !== 'undefined' && user) ? user.username : 'Guest' %>!</h1>
     <p>This is your dashboard.</p>
-    <p><a href="/workouts">View My Workouts</a></p>
+    <p><a href="/schedule">View Class Schedule</a></p>
+    
+    <h3>My Bookings</h3>
+    <% if (typeof bookings !== 'undefined' && bookings.length > 0) { %>
+        <table border="1" cellpadding="10" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Activity</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% bookings.forEach(booking => { %>
+                    <tr>
+                        <td><%= booking.name %></td>
+                        <td><%= booking.day %></td>
+                        <td><%= booking.start_time %></td>
+                        <td><%= booking.status %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>You haven't booked any classes yet.</p>
+    <% } %>
+
+    <br>
     <a href="/users/logout">Logout</a>
 </body>
 </html>
