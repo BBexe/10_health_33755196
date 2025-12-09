@@ -1,10 +1,54 @@
 <%- include('header') %>
-    <h1>Welcome to <%= title %></h1>
-    <p>Your fitness journey starts here.</p>
+<div class="schedule-container">
+    <h1>Welcome to Gym&Gain</h1>
+    <p style="text-align: center; margin-bottom: 20px;">Your weekly class schedule</p>
     
-    <% if (typeof user !== 'undefined' && user) { %>
-        <p>Hello, <%= user.username %>! <a href="/dashboard">Go to Dashboard</a></p>
-    <% } else { %>
-        <p>Please login or register to continue.</p>
-    <% } %>
+    <!-- Search Bar -->
+    <div class="search-container">
+        <form action="/" method="GET">
+            <input type="text" name="search" placeholder="Search for a class (e.g. Yoga)..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+            <button type="submit">🔍 Search</button>
+            <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+                <a href="/" class="clear-search">Clear</a>
+            <% } %>
+        </form>
+    </div>
+
+    <!-- Weekly Schedule View -->
+    <div class="schedule-wrapper">
+        <% const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']; %>
+        <div class="schedule-grid">
+            <% days.forEach(day => { %>
+                <div class="day-column">
+                    <div class="day-header">
+                        <%= day %> <br>
+                        <span style="font-size: 0.8em; color: #666;"><%= weekDates[day] %></span>
+                    </div>
+                    <div class="day-content">
+                        <% const dayClasses = schedule.filter(s => s.day === day); %>
+                        <% if (dayClasses.length > 0) { %>
+                            <% dayClasses.forEach(item => { %>
+                                <div class="class-card">
+                                    <div class="class-time"><%= item.start_time.slice(0,5) %></div>
+                                    <div class="class-name"><%= item.name %></div>
+                                    <div class="class-info">
+                                        <span class="cost"><%= item.cost %> </span>
+                                        <span class="capacity"><%= item.capacity %> spots</span>
+                                    </div>
+                                    <form action="/schedule/book" method="POST">
+                                        <input type="hidden" name="schedule_id" value="<%= item.id %>">
+                                        <input type="hidden" name="booking_date" value="<%= weekDates[day] %>">
+                                        <button type="submit" class="book-btn">Book</button>
+                                    </form>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="no-classes">-</div>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</div>
 <%- include('footer') %>

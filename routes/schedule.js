@@ -3,35 +3,186 @@ const router = express.Router();
 const db = require('../config/db');
 const redirectLogin = require('../middleware/auth');
 
-router.get('/', (req, res) => {
+// Handle Booking
+router.post('/book', redirectLogin, (req, res) => {
+    const scheduleId = req.body.schedule_id;
+    const userId = req.session.user.id;
+    const bookingDate = req.body.booking_date; // Get date from form
+
+    if (!bookingDate) {
+        return res.send('<script>alert("Invalid booking date!"); window.location.href="/";</script>');
+    }
+
+    // 1. Get Schedule and Activity Details
     const sql = `
-        SELECT s.id, s.day, s.start_time, s.capacity, a.name, a.description, a.cost 
-        FROM Schedule s 
-        JOIN Activities a ON s.activity_id = a.id 
-        ORDER BY FIELD(s.day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), s.start_time
+        SELECT S.id, S.capacity, S.day, A.cost, A.tier_required
+        FROM Schedule S
+        JOIN Activities A ON S.activity_id = A.id
+        WHERE S.id = ?
     `;
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.render('dashboard', { user: req.session.user, bookings: [], error: 'Error fetching schedule' });
-        }
-        res.render('schedule', { title: 'Class Schedule', schedule: results, user: req.session.user });
+
+    db.query(sql, [scheduleId], (err, result) => {
+        if (err) { console.error(err); return res.status(500).send('Error'); }
+        if (result.length === 0) return res.status(404).send('Class not found');
+
+        const classInfo = result[0];
+        const user = req.session.user;
+
+        // Get current bookings for this specific date
+        const countSql = "SELECT COUNT(*) as count FROM Bookings WHERE schedule_id = ? AND booking_date = ? AND status = 'confirmed'";
+        db.query(countSql, [scheduleId, bookingDate], (err, countResult) => {
+            if (err) { console.error(err); return res.status(500).send('Error counting bookings'); }
+            
+            const currentBookings = countResult[0].count;
+
+            // Check 0: Already booked
+            const checkSql = 'SELECT * FROM Bookings WHERE user_id = ? AND schedule_id = ? AND booking_date = ?';
+            db.query(checkSql, [userId, scheduleId, bookingDate], (err, existingBookings) => {
+                if (err) { console.error(err); return res.status(500).send('Error checking bookings'); }
+                
+                if (existingBookings.length > 0) {
+                    return res.send('<script>alert("You have already booked this class!"); window.location.href="/";</script>');
+                }
+
+                // Check 1: Capacity
+                if (currentBookings >= classInfo.capacity) {
+                    return res.send('<script>alert("Class is full!"); window.location.href="/";</script>');
+                }
+
+                // Check 2: Balance
+                if (user.token_balance < classInfo.cost) {
+                    return res.send('<script>alert("Insufficient tokens!"); window.location.href="/";</script>');
+                }
+
+                // Check 3: Tier
+                // tier_required: 1=guest, 2=silver, 3=gold
+                // membership_tier: none=1, silver=2, gold=3
+                const userTierValue = user.membership_tier === 'gold' ? 3 : (user.membership_tier === 'silver' ? 2 : 1);
+                if (classInfo.tier_required > userTierValue) {
+                    return res.send('<script>alert("This class requires a higher membership tier!"); window.location.href="/";</script>');
+                }
+
+                // Action: Insert Booking and Deduct Tokens
+                db.getConnection((err, connection) => {
+                    if (err) { console.error(err); return res.status(500).send('Database connection error'); }
+
+                    connection.beginTransaction(err => {
+                        if (err) { 
+                            connection.release();
+                            console.error(err); 
+                            return res.status(500).send('Error starting transaction'); 
+                        }
+
+                        const insertBooking = 'INSERT INTO Bookings (user_id, schedule_id, status, booking_date) VALUES (?, ?, "confirmed", ?)';
+                        connection.query(insertBooking, [userId, scheduleId, bookingDate], (err, result) => {
+                            if (err) { 
+                                connection.rollback(() => { 
+                                    connection.release();
+                                    console.error(err); 
+                                    res.status(500).send('Error booking'); 
+                                });
+                                return;
+                            }
+
+                            const updateTokens = 'UPDATE Users SET token_balance = token_balance - ? WHERE id = ?';
+                            connection.query(updateTokens, [classInfo.cost, userId], (err, result) => {
+                                if (err) {
+                                    connection.rollback(() => { 
+                                        connection.release();
+                                        console.error(err); 
+                                        res.status(500).send('Error updating tokens'); 
+                                    });
+                                    return;
+                                }
+
+                                connection.commit(err => {
+                                    if (err) {
+                                        connection.rollback(() => { 
+                                            connection.release();
+                                            console.error(err); 
+                                            res.status(500).send('Error committing'); 
+                                        });
+                                        return;
+                                    }
+                                    
+                                    connection.release();
+                                    // Update session
+                                    req.session.user.token_balance -= classInfo.cost;
+                                    req.session.save(() => {
+                                        res.redirect('/dashboard');
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
     });
 });
 
-// Handle Booking
-router.post('/book', redirectLogin, (req, res) => {
-    const { schedule_id } = req.body;
+// Handle Cancellation
+router.post('/cancel', redirectLogin, (req, res) => {
+    const { booking_id } = req.body;
     const userId = req.session.user.id;
 
-    // Insert booking
-    const sql = 'INSERT INTO Bookings (user_id, schedule_id, booking_date) VALUES (?, ?, CURDATE())';
-    db.query(sql, [userId, schedule_id], (err, result) => {
+    // 1. Get booking details to find cost
+    const getBookingSql = `
+        SELECT b.id, a.cost 
+        FROM Bookings b
+        JOIN Schedule s ON b.schedule_id = s.id
+        JOIN Activities a ON s.activity_id = a.id
+        WHERE b.id = ? AND b.user_id = ?
+    `;
+
+    db.query(getBookingSql, [booking_id, userId], (err, results) => {
         if (err) {
-            console.error(err);
-            return res.send('Error booking class');
+            console.error('Error fetching booking:', err);
+            return res.send('Error fetching booking details');
         }
-        res.redirect('/dashboard');
+
+        if (results.length === 0) {
+            console.log(`Booking ${booking_id} not found or already cancelled.`);
+            return res.redirect('/dashboard');
+        }
+
+        const cost = results[0].cost;
+        console.log(`Found booking ${booking_id} with cost ${cost}. Proceeding with cancellation.`);
+
+        // 2. Delete booking FIRST, then refund (atomic operation protection)
+        const deleteSql = 'DELETE FROM Bookings WHERE id = ? AND user_id = ?';
+        db.query(deleteSql, [booking_id, userId], (err, deleteResult) => {
+            if (err) {
+                console.error('Error cancelling booking:', err);
+                return res.send('Error cancelling booking');
+            }
+
+            // Check if a row was actually deleted
+            if (deleteResult.affectedRows === 0) {
+                console.log(`Booking ${booking_id} was already deleted. No refund issued.`);
+                return res.redirect('/dashboard');
+            }
+
+            console.log(`Booking ${booking_id} cancelled. Refunding ${cost} tokens to user ${userId}.`);
+
+            // 3. Refund tokens ONLY if booking was actually deleted
+            const refundSql = 'UPDATE Users SET token_balance = token_balance + ? WHERE id = ?';
+            db.query(refundSql, [cost, userId], (err) => {
+                if (err) {
+                    console.error('Error refunding tokens:', err);
+                    // Try to restore the booking since refund failed
+                    db.query('INSERT INTO Bookings (id, user_id, schedule_id, booking_date) SELECT ?, user_id, schedule_id, booking_date FROM Bookings WHERE id = ?', [booking_id, booking_id]);
+                    return res.send('Error refunding tokens');
+                }
+                console.log('Tokens refunded successfully.');
+
+                // Update session
+                req.session.user.token_balance += cost;
+                req.session.save(() => {
+                    res.redirect('/dashboard');
+                });
+            });
+        });
     });
 });
 

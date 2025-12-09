@@ -4,9 +4,61 @@ const db = require('../config/db');
 const redirectLogin = require('../middleware/auth');
 const log = require('../debug_logger');
 
-// Home Page
+// Helper function to get dates for the upcoming week
+function getNextWeekDates() {
+    const weekDates = {};
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const dayMap = {'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6};
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 (Sun) - 6 (Sat)
+    
+    dayNames.forEach(day => {
+        const targetDay = dayMap[day];
+        let daysUntil = targetDay - currentDay;
+        if (daysUntil <= 0) daysUntil += 7;
+        
+        const nextDate = new Date(today);
+        nextDate.setDate(today.getDate() + daysUntil);
+        weekDates[day] = nextDate.toISOString().split('T')[0];
+    });
+    
+    return weekDates;
+}
+
+// Home Page with Schedule
 router.get('/', (req, res) => {
-    res.render('index', { title: 'Gym&Gain', user: req.session.user });
+    const searchQuery = req.query.search;
+    let query = `
+        SELECT s.id, s.day, s.start_time, s.capacity, a.name, a.description, a.cost 
+        FROM schedule s 
+        JOIN activities a ON s.activity_id = a.id
+    `;
+    
+    const params = [];
+    if (searchQuery) {
+        query += ' WHERE a.name LIKE ?';
+        params.push(`%${searchQuery}%`);
+    }
+    
+    query += ' ORDER BY FIELD(day, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), start_time';
+
+    db.query(query, params, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Server Error');
+        }
+        console.log('Rendering index with schedule items:', results ? results.length : 'null');
+        
+        const weekDates = getNextWeekDates();
+        
+        res.render('index', { 
+            title: 'Gym&Gain - Home', 
+            user: req.session.user,
+            schedule: results,
+            searchQuery: searchQuery,
+            weekDates: weekDates
+        });
+    });
 });
 
 // About Page

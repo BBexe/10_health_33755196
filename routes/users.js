@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 const { check, validationResult } = require('express-validator');
+const redirectLogin = require('../middleware/auth');
 
 // Register Page
 router.get('/register', (req, res) => {
@@ -33,7 +34,7 @@ router.post('/register', [
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        const sql = 'INSERT INTO Users (username, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)';
+        const sql = 'INSERT INTO Users (username, firstname, lastname, email, password, ) VALUES (?, ?, ?, ?, ?)';
         db.query(sql, [username, firstname, lastname, email, hashedPassword], (err, result) => {
             if (err) {
                 console.error('Database error during register:', err);
@@ -119,7 +120,7 @@ router.post('/login', [
 });
 
 // Logout
-router.get('/logout', (req, res) => {
+router.get('/logout', redirectLogin, (req, res) => {
     req.session.destroy((err) => {
         if (err) console.error(err);
         res.redirect('/users/login');

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= typeof title !== 'undefined' ? title : 'Gym & Gains' %></title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/schedule.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,7 +16,7 @@
         <div class="nav-content">
             <div class="nav-links">
                 <a href="/"> Home</a>
-                <a href="/about">ℹ About</a>
+                <a href="/about"> About</a>
                 <% if (typeof user !== 'undefined' && user) { %>
                     <a href="/dashboard"> Dashboard</a>
                     <a href="/social"> Social</a>
@@ -24,7 +25,7 @@
             </div>
             <div class="nav-links">
                 <% if (typeof user !== 'undefined' && user) { %>
-                    <span style="color: #ffd700; margin-right: 15px;">💎 <%= user.token_balance || 0 %> Tokens</span>
+                    <span style="color: #ffd700; margin-right: 15px;"> <%= user.token_balance || 0 %> Tokens</span>
                     <a href="/users/logout"> Logout (<%= user.username %>)</a>
                 <% } else { %>
                     <a href="/users/login"> Login</a>
