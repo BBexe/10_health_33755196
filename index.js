@@ -25,6 +25,12 @@ app.use(session({
     saveUninitialized: true
 }));
 
+// Middleware to make user available to all views
+app.use((req, res, next) => {
+    res.locals.user = req.session.user;
+    next();
+});
+
 // Routes
 const mainRouter = require('./routes/index');
 const usersRouter = require('./routes/users');

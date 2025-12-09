@@ -1,22 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+<%- include('header') %>
     <h1>Welcome to <%= title %></h1>
     <p>Your fitness journey starts here.</p>
     
     <% if (typeof user !== 'undefined' && user) { %>
         <p>Hello, <%= user.username %>! <a href="/dashboard">Go to Dashboard</a></p>
     <% } else { %>
-        <p>
-            <a href="/users/login">Login</a> | 
-            <a href="/users/register">Register</a>
-        </p>
+        <p>Please login or register to continue.</p>
     <% } %>
-</body>
-</html>
+<%- include('footer') %>

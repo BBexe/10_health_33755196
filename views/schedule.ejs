@@ -1,14 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+<%- include('header') %>
     <h1>Class Schedule</h1>
-    <p>Welcome, <%= user ? user.username : 'Guest' %>! | <a href="/dashboard">Dashboard</a> | <a href="/users/logout">Logout</a></p>
     
     <% if (schedule.length > 0) { %>
         <table>
@@ -45,5 +36,4 @@
     <% } else { %>
         <p>No classes scheduled.</p>
     <% } %>
-</body>
-</html>
+<%- include('footer') %>

@@ -1,14 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+<%- include('header') %>
     <h1>Login</h1>
-    <% if (typeof error !== 'undefined') { %>
+    <% if (typeof error !== 'undefined' && error) { %>
         <p style="color: red;"><%= error %></p>
     <% } %>
     <form action="/users/login" method="POST">
@@ -23,5 +15,4 @@
         <button type="submit">Login</button>
     </form>
     <p>Don't have an account? <a href="/users/register">Register</a></p>
-</body>
-</html>
+<%- include('footer') %>

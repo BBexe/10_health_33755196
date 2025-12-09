@@ -88,10 +88,23 @@ router.post('/login', [
 
                 if (isMatch) {
                     console.log('Login successful for:', username);
-                    req.session.user = user; // Store entire user object
+                    
+                    // Manually construct the user object to avoid any hidden properties issues
+                    const sessionUser = {
+                        id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        token_balance: user.token_balance
+                    };
+                    
+                    req.session.user = sessionUser;
+
                     req.session.save((err) => {
-                        if (err) console.error('Session save error:', err);
-                        res.redirect('/dashboard');
+                        if (err) {
+                            console.error('Session save error:', err);
+                            return res.render('login', { title: 'Login', error: 'Session Error' });
+                        }
+                        res.redirect('/'); 
                     });
                 } else {
                     console.log('Incorrect password for:', username);

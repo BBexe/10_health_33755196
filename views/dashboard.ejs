@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+<%- include('header') %>
     <h1>Welcome, <%= (typeof user !== 'undefined' && user) ? user.username : 'Guest' %>!</h1>
     <p>This is your dashboard.</p>
     <p><a href="/schedule">View Class Schedule</a></p>
@@ -36,8 +28,4 @@
     <% } else { %>
         <p>You haven't booked any classes yet.</p>
     <% } %>
-
-    <br>
-    <a href="/users/logout">Logout</a>
-</body>
-</html>
+<%- include('footer') %>
