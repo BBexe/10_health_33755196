@@ -7,11 +7,13 @@ const redirectLogin = require('../middleware/auth');
 router.post('/book', redirectLogin, (req, res) => {
     const scheduleId = req.body.schedule_id;
     const userId = req.session.user.id;
-    const bookingDate = req.body.booking_date; // Get date from form
+    const bookingDate = req.body.booking_date;
 
-    if (!bookingDate) {
-        return res.send('<script>alert("Invalid booking date!"); window.location.href="/";</script>');
-    }
+    const sendError = (message) => {
+        res.send(`<script>alert("${message}"); window.location.href="/";</script>`);
+    };
+
+    if (!bookingDate) return sendError("Invalid booking date!");
 
     // 1. Get Schedule and Activity Details
     const sql = `
@@ -22,8 +24,8 @@ router.post('/book', redirectLogin, (req, res) => {
     `;
 
     db.query(sql, [scheduleId], (err, result) => {
-        if (err) { console.error(err); return res.status(500).send('Error'); }
-        if (result.length === 0) return res.status(404).send('Class not found');
+        if (err) { console.error(err); return sendError('Database error'); }
+        if (result.length === 0) return sendError('Class not found');
 
         const classInfo = result[0];
         const user = req.session.user;
@@ -31,46 +33,44 @@ router.post('/book', redirectLogin, (req, res) => {
         // Get current bookings for this specific date
         const countSql = "SELECT COUNT(*) as count FROM Bookings WHERE schedule_id = ? AND booking_date = ? AND status = 'confirmed'";
         db.query(countSql, [scheduleId, bookingDate], (err, countResult) => {
-            if (err) { console.error(err); return res.status(500).send('Error counting bookings'); }
+            if (err) { console.error(err); return sendError('Error counting bookings'); }
             
             const currentBookings = countResult[0].count;
 
             // Check 0: Already booked
             const checkSql = 'SELECT * FROM Bookings WHERE user_id = ? AND schedule_id = ? AND booking_date = ?';
             db.query(checkSql, [userId, scheduleId, bookingDate], (err, existingBookings) => {
-                if (err) { console.error(err); return res.status(500).send('Error checking bookings'); }
+                if (err) { console.error(err); return sendError('Error checking bookings'); }
                 
                 if (existingBookings.length > 0) {
-                    return res.send('<script>alert("You have already booked this class!"); window.location.href="/";</script>');
+                    return sendError("You have already booked this class!");
                 }
 
                 // Check 1: Capacity
                 if (currentBookings >= classInfo.capacity) {
-                    return res.send('<script>alert("Class is full!"); window.location.href="/";</script>');
+                    return sendError("Class is full!");
                 }
 
                 // Check 2: Balance
                 if (user.token_balance < classInfo.cost) {
-                    return res.send('<script>alert("Insufficient tokens!"); window.location.href="/";</script>');
+                    return sendError("Insufficient tokens!");
                 }
 
                 // Check 3: Tier
-                // tier_required: 1=guest, 2=silver, 3=gold
-                // membership_tier: none=1, silver=2, gold=3
                 const userTierValue = user.membership_tier === 'gold' ? 3 : (user.membership_tier === 'silver' ? 2 : 1);
                 if (classInfo.tier_required > userTierValue) {
-                    return res.send('<script>alert("This class requires a higher membership tier!"); window.location.href="/";</script>');
+                    return sendError("This class requires a higher membership tier!");
                 }
 
                 // Action: Insert Booking and Deduct Tokens
                 db.getConnection((err, connection) => {
-                    if (err) { console.error(err); return res.status(500).send('Database connection error'); }
+                    if (err) { console.error(err); return sendError('Database connection error'); }
 
                     connection.beginTransaction(err => {
                         if (err) { 
                             connection.release();
                             console.error(err); 
-                            return res.status(500).send('Error starting transaction'); 
+                            return sendError('Error starting transaction'); 
                         }
 
                         const insertBooking = 'INSERT INTO Bookings (user_id, schedule_id, status, booking_date) VALUES (?, ?, "confirmed", ?)';
@@ -79,7 +79,7 @@ router.post('/book', redirectLogin, (req, res) => {
                                 connection.rollback(() => { 
                                     connection.release();
                                     console.error(err); 
-                                    res.status(500).send('Error booking'); 
+                                    sendError('Error booking'); 
                                 });
                                 return;
                             }
@@ -90,7 +90,7 @@ router.post('/book', redirectLogin, (req, res) => {
                                     connection.rollback(() => { 
                                         connection.release();
                                         console.error(err); 
-                                        res.status(500).send('Error updating tokens'); 
+                                        sendError('Error updating tokens'); 
                                     });
                                     return;
                                 }
@@ -100,7 +100,7 @@ router.post('/book', redirectLogin, (req, res) => {
                                         connection.rollback(() => { 
                                             connection.release();
                                             console.error(err); 
-                                            res.status(500).send('Error committing'); 
+                                            sendError('Error committing'); 
                                         });
                                         return;
                                     }

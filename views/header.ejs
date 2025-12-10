@@ -25,7 +25,7 @@
             </div>
             <div class="nav-links">
                 <% if (typeof user !== 'undefined' && user) { %>
-                    <span style="color: #ffd700; margin-right: 15px;"> <%= user.token_balance || 0 %> Tokens</span>
+                    <span id="user-token-balance" style="color: #ffd700; margin-right: 15px;"> <%= user.token_balance || 0 %> Tokens</span>
                     <a href="/users/logout"> Logout (<%= user.username %>)</a>
                 <% } else { %>
                     <a href="/users/login"> Login</a>

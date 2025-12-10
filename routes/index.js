@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const redirectLogin = require('../middleware/auth');
-const log = require('../debug_logger');
 
 // Helper function to get dates for the upcoming week
 function getNextWeekDates() {
@@ -27,9 +26,15 @@ function getNextWeekDates() {
 
 // Home Page with Schedule
 router.get('/', (req, res) => {
+    // Prevent caching so the schedule is always fresh (fixes "Back button" stale data)
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    
     const searchQuery = req.query.search;
+    const weekDates = getNextWeekDates();
+    const dateValues = Object.values(weekDates);
+
     let query = `
-        SELECT s.id, s.day, s.start_time, s.capacity, a.name, a.description, a.cost 
+        SELECT s.id, s.day, s.start_time, s.capacity, a.name, a.description, a.cost, a.tier_required 
         FROM schedule s 
         JOIN activities a ON s.activity_id = a.id
     `;
@@ -47,16 +52,48 @@ router.get('/', (req, res) => {
             console.error(err);
             return res.status(500).send('Server Error');
         }
-        console.log('Rendering index with schedule items:', results ? results.length : 'null');
         
-        const weekDates = getNextWeekDates();
-        
-        res.render('index', { 
-            title: 'Gym&Gain - Home', 
-            user: req.session.user,
-            schedule: results,
-            searchQuery: searchQuery,
-            weekDates: weekDates
+        // Fetch booking counts for the displayed week
+        const bookingQuery = `
+            SELECT schedule_id, booking_date, COUNT(*) as count 
+            FROM Bookings 
+            WHERE booking_date IN (?) AND status = 'confirmed' 
+            GROUP BY schedule_id, booking_date
+        `;
+
+        db.query(bookingQuery, [dateValues], (err, bookingCounts) => {
+            if (err) {
+                console.error('Error fetching booking counts:', err);
+                // Continue without counts if error
+                return res.render('index', { 
+                    title: 'Gym&Gain - Home', 
+                    user: req.session.user,
+                    schedule: results,
+                    searchQuery: searchQuery,
+                    weekDates: weekDates
+                });
+            }
+
+            // Map counts to schedule items
+            results.forEach(item => {
+                const itemDate = weekDates[item.day];
+                const countRecord = bookingCounts.find(b => 
+                    b.schedule_id === item.id && 
+                    // Compare dates as strings to avoid timezone issues
+                    new Date(b.booking_date).toISOString().split('T')[0] === itemDate
+                );
+                item.booked_count = countRecord ? countRecord.count : 0;
+            });
+
+            console.log('Rendering index with schedule items:', results ? results.length : 'null');
+            
+            res.render('index', { 
+                title: 'Gym&Gain - Home', 
+                user: req.session.user,
+                schedule: results,
+                searchQuery: searchQuery,
+                weekDates: weekDates
+            });
         });
     });
 });
