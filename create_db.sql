@@ -56,3 +56,31 @@ CREATE TABLE User_Stats (
     notes TEXT,
     FOREIGN KEY (user_id) REFERENCES Users(id)
 );
+
+CREATE TABLE Routines (
+    routine_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    routine_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE Routine_Exercises (
+    routine_exercise_id INT PRIMARY KEY AUTO_INCREMENT,
+    routine_id INT NOT NULL,
+    exercise_id INT NOT NULL COMMENT 'Wger API exercise ID',
+    exercise_name VARCHAR(200) NOT NULL COMMENT 'Cached from Wger API',
+    sets INT DEFAULT 3,
+    reps INT DEFAULT 10,
+    order_index INT NOT NULL COMMENT 'Display order within routine',
+    notes TEXT COMMENT 'User notes for this exercise',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (routine_id) REFERENCES Routines(routine_id) ON DELETE CASCADE,
+    INDEX idx_routine_id (routine_id),
+    INDEX idx_exercise_id (exercise_id),
+    INDEX idx_order_index (order_index)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
