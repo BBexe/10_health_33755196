@@ -105,7 +105,23 @@ router.get('/about', (req, res) => {
 
 // Social Page
 router.get('/social', redirectLogin, (req, res) => {
-    res.render('social', { title: 'Social', user: req.session.user });
+    const sql = `
+        SELECT u.username, a.name as activity_name, b.booking_date, s.start_time, s.day
+        FROM Bookings b
+        JOIN Users u ON b.user_id = u.id
+        JOIN Schedule s ON b.schedule_id = s.id
+        JOIN Activities a ON s.activity_id = a.id
+        WHERE b.status = 'confirmed'
+        ORDER BY b.booking_date DESC, s.start_time ASC
+    `;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching social feed:', err);
+            return res.render('social', { title: 'Social', user: req.session.user, bookings: [] });
+        }
+        res.render('social', { title: 'Community Activity', user: req.session.user, bookings: results });
+    });
 });
 
 
