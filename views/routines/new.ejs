@@ -1,0 +1,26 @@
+<%- include('../header') %>
+
+<div style="max-width: 600px; margin: 40px auto; padding: 20px;">
+    <h1>Create New Routine</h1>
+    
+    <form action="/routines" method="POST">
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Routine Name:</label>
+            <input type="text" name="routine_name" required style="width: 100%; padding: 8px; font-size: 16px;">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Description:</label>
+            <textarea name="description" rows="4" style="width: 100%; padding: 8px; font-size: 16px;"></textarea>
+        </div>
+        
+        <button type="submit" style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; font-size: 16px;">
+            Save Routine
+        </button>
+        <a href="/routines" style="margin-left: 10px; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; display: inline-block;">
+            Cancel
+        </a>
+    </form>
+</div>
+
+<%- include('../footer') %>

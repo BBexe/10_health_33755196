@@ -35,10 +35,12 @@ app.use((req, res, next) => {
 const mainRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const scheduleRouter = require('./routes/schedule');
+const routinesRouter = require('./routes/routines');
 
 app.use('/', mainRouter);
 app.use('/users', usersRouter);
 app.use('/schedule', scheduleRouter);
+app.use('/routines', routinesRouter);
 
 // Start server
 const PORT = process.env.PORT;

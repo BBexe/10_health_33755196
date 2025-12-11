@@ -85,6 +85,11 @@ INSERT INTO Schedule (activity_id, day, start_time, capacity) VALUES
 (1, 'Sunday', '11:00:00', 50),
 (11, 'Sunday', '16:00:00', 20); -- Meditation
 
+-- Insert sample routines for testing
+INSERT INTO Routines (user_id, routine_name, description) VALUES
+(1, 'Push Day', 'Upper body push exercises'),
+(1, 'Pull Day', 'Upper body pull exercises'),
+(1, 'Leg Day', 'Lower body workout');
 
 -- CUSTOM ROUTINES TABLES
 
