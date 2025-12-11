@@ -1,25 +1,44 @@
 <%- include('../header') %>
+<link rel="stylesheet" href="/css/routines.css">
 
-<div style="max-width: 600px; margin: 40px auto; padding: 20px;">
+<div class="routine-form-container">
     <h1>Create New Routine</h1>
     
     <form action="/routines" method="POST">
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Routine Name:</label>
-            <input type="text" name="routine_name" required style="width: 100%; padding: 8px; font-size: 16px;">
+        <div class="form-group">
+            <label>Routine Name:</label>
+            <input type="text" name="routine_name" required>
         </div>
         
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Description:</label>
-            <textarea name="description" rows="4" style="width: 100%; padding: 8px; font-size: 16px;"></textarea>
+        <div class="form-group">
+            <label>Description:</label>
+            <textarea name="description" rows="4"></textarea>
         </div>
         
-        <button type="submit" style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; font-size: 16px;">
-            Save Routine
-        </button>
-        <a href="/routines" style="margin-left: 10px; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; display: inline-block;">
-            Cancel
-        </a>
+        <div class="exercise-section">
+            <h3>Add One Exercise (Optional)</h3>
+            
+            <div class="form-group">
+                <label>Exercise Name:</label>
+                <input type="text" name="exercise_name" placeholder="e.g., Bench Press">
+            </div>
+            
+            <div class="exercise-grid">
+                <div class="form-group">
+                    <label>Sets:</label>
+                    <input type="number" name="exercise_sets" value="3" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Reps:</label>
+                    <input type="number" name="exercise_reps" value="10" min="1">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit">Save Routine</button>
+            <a href="/routines">Cancel</a>
+        </div>
     </form>
 </div>
 

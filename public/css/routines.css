@@ -1,0 +1,71 @@
+.routine-form-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.routine-form-container h1 {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.exercise-section {
+    border: 2px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    background: #f9f9f9;
+}
+
+.exercise-section h3 {
+    margin-top: 0;
+}
+
+.exercise-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-actions button {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.form-actions button:hover {
+    background: #0056b3;
+}
+
+.form-actions a {
+    margin-left: 10px;
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.form-actions a:hover {
+    background: #5a6268;
+}
