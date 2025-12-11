@@ -25,10 +25,12 @@ function getNextWeekDates() {
 }
 
 // Home Page with Schedule
+const expressSanitizer = require('express-sanitizer');
+router.use(expressSanitizer());
 router.get('/', (req, res) => {
     // Prevent caching so the schedule is always fresh (fixes "Back button" stale data)
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    
+    req.query.search = req.sanitize(req.query.search);
     const searchQuery = req.query.search;
     const weekDates = getNextWeekDates();
     const dateValues = Object.values(weekDates);

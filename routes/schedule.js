@@ -2,9 +2,14 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const redirectLogin = require('../middleware/auth');
+const expressSanitizer = require('express-sanitizer');
+
+router.use(expressSanitizer());
 
 // Handle Booking
 router.post('/book', redirectLogin, (req, res) => {
+    req.body.schedule_id = req.sanitize(req.body.schedule_id);
+    req.body.booking_date = req.sanitize(req.body.booking_date);
     const scheduleId = req.body.schedule_id;
     const userId = req.session.user.id;
     const bookingDate = req.body.booking_date;
@@ -123,6 +128,7 @@ router.post('/book', redirectLogin, (req, res) => {
 
 // Handle Cancellation
 router.post('/cancel', redirectLogin, (req, res) => {
+    req.body.booking_id = req.sanitize(req.body.booking_id);
     const { booking_id } = req.body;
     const userId = req.session.user.id;
 

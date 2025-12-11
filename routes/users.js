@@ -4,6 +4,9 @@ const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 const { check, validationResult } = require('express-validator');
 const redirectLogin = require('../middleware/auth');
+const expressSanitizer = require('express-sanitizer');
+
+router.use(expressSanitizer());
 
 // Register Page
 router.get('/register', (req, res) => {
@@ -19,6 +22,11 @@ router.post('/register', [
     check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
 ], async (req, res) => {
     console.log('Register attempt:', req.body);
+    req.body.username = req.sanitize(req.body.username);
+    req.body.firstname = req.sanitize(req.body.firstname);
+    req.body.lastname = req.sanitize(req.body.lastname);
+    req.body.email = req.sanitize(req.body.email);
+    req.body.password = req.sanitize(req.body.password);
     
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -63,6 +71,8 @@ router.post('/login', [
     check('password').notEmpty().withMessage('Password is required')
 ], (req, res) => {
     console.log('Login attempt for:', req.body.username);
+    req.body.username = req.sanitize(req.body.username);
+    req.body.password = req.sanitize(req.body.password);
     
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
