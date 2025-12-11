@@ -1,0 +1,49 @@
+<%- include('../header') %>
+<link rel="stylesheet" href="/css/routines.css">
+
+<div class="routines-container">
+    <div class="page-header">
+        <h1>My Routines</h1>
+        <a href="/routines/new" class="btn-primary">Create New Routine</a>
+    </div>
+
+    <% if (routines.length === 0) { %>
+        <div class="empty-state">
+            <p>You haven't created any routines yet.</p>
+            <a href="/routines/new" class="btn-primary">Create Your First Routine</a>
+        </div>
+    <% } else { %>
+        <div class="routines-grid">
+            <% routines.forEach(routine => { %>
+                <div class="routine-card">
+                    <h3><%= routine.routine_name %></h3>
+                    <% if (routine.description) { %>
+                        <p class="routine-description"><%= routine.description %></p>
+                    <% } %>
+                    
+                    <div class="routine-exercises">
+                        <h4>Exercises:</h4>
+                        <% if (routine.exercises && routine.exercises.length > 0) { %>
+                            <ul class="exercise-list">
+                                <% routine.exercises.forEach(exercise => { %>
+                                    <li>
+                                        <strong><%= exercise.exercise_name %></strong>
+                                        - <%= exercise.sets %> sets × <%= exercise.reps %> reps
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        <% } else { %>
+                            <p class="no-exercises">No exercises added</p>
+                        <% } %>
+                    </div>
+                    
+                    <div class="routine-meta">
+                        <small>Created: <%= new Date(routine.created_at).toLocaleDateString() %></small>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } %>
+</div>
+
+<%- include('../footer') %>

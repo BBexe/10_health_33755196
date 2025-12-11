@@ -1,10 +1,10 @@
 <%- include('../header') %>
 <link rel="stylesheet" href="/css/routines.css">
 
-<div class="routine-form-container">
+<div class="routine-creator-layout">
     <h1>Create New Routine</h1>
     
-    <form action="/routines" method="POST">
+    <form action="/routines" method="POST" style="max-width: 600px;">
         <div class="form-group">
             <label>Routine Name:</label>
             <input type="text" name="routine_name" required>
@@ -15,31 +15,65 @@
             <textarea name="description" rows="4"></textarea>
         </div>
         
-        <div class="exercise-section">
-            <h3>Add One Exercise (Optional)</h3>
-            
-            <div class="form-group">
-                <label>Exercise Name:</label>
-                <input type="text" name="exercise_name" placeholder="e.g., Bench Press">
-            </div>
-            
-            <div class="exercise-grid">
-                <div class="form-group">
-                    <label>Sets:</label>
-                    <input type="number" name="exercise_sets" value="3" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Reps:</label>
-                    <input type="number" name="exercise_reps" value="10" min="1">
-                </div>
-            </div>
-        </div>
-        
         <div class="form-actions">
             <button type="submit">Save Routine</button>
             <a href="/routines">Cancel</a>
         </div>
     </form>
+    
+    <div class="exercise-section">
+        <h3>Exercises</h3>
+        
+        <% if (tempRoutine.exercises && tempRoutine.exercises.length > 0) { %>
+            <div class="exercises-list">
+                <% tempRoutine.exercises.forEach((exercise, index) => { %>
+                    <div class="exercise-item">
+                        <div class="exercise-info">
+                            <strong><%= exercise.exercise_name %></strong>
+                            <span><%= exercise.sets %> sets × <%= exercise.reps %> reps</span>
+                        </div>
+                        <form action="/routines/remove-exercise" method="POST" style="display: inline;">
+                            <input type="hidden" name="index" value="<%= index %>">
+                            <button type="submit" class="btn-remove">Remove</button>
+                        </form>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <p class="empty-message">No exercises added yet.</p>
+        <% } %>
+        
+        <h4>Add Exercise</h4>
+        
+        <form action="/routines/search" method="POST" style="margin: 1rem 0;">
+            <div class="form-group">
+                <label>Search Exercise:</label>
+                <input type="text" name="query" placeholder="Type to search exercises..." autocomplete="off" required>
+            </div>
+            <button type="submit">Search</button>
+        </form>
+
+        <% if (searchResults && searchResults.length > 0) { %>
+            <div class="search-results-list">
+                <p><strong>Search Results:</strong></p>
+                <% searchResults.forEach(result => { %>
+                    <form action="/routines/add-exercise" method="POST" class="add-exercise-form">
+                        <input type="hidden" name="exercise_id" value="<%= result.data.id %>">
+                        <input type="hidden" name="exercise_name" value="<%= result.value %>">
+                        
+                        <div class="result-item">
+                            <div><%= result.value %></div>
+                            <div>
+                                <label>Sets: <input type="number" name="sets" value="3" min="1" style="width: 60px;"></label>
+                                <label>Reps: <input type="number" name="reps" value="10" min="1" style="width: 60px;"></label>
+                                <button type="submit">Add</button>
+                            </div>
+                        </div>
+                    </form>
+                <% }); %>
+            </div>
+        <% } %>
+    </div>
 </div>
 
 <%- include('../footer') %>
