@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const axios = require('axios');
 
 // Middleware to check authentication
 function isAuthenticated(req, res, next) {
@@ -55,6 +56,41 @@ router.get('/json', isAuthenticated, (req, res) => {
             routines: routines
         });
     });
+});
+
+// GET /routines/test-api - Test Wger API search
+router.get('/test-api', isAuthenticated, async (req, res) => {
+    const searchTerm = req.query.q || 'bench';
+    
+    try {
+        console.log('Testing Wger API with search term:', searchTerm);
+        
+        const response = await axios.get('https://wger.de/api/v2/exercise/search/', {
+            params: {
+                term: searchTerm,
+                language: 2
+            },
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        res.json({
+            success: true,
+            search_term: searchTerm,
+            api_url: 'https://wger.de/api/v2/exercise/search/',
+            result_count: response.data.suggestions ? response.data.suggestions.length : 0,
+            raw_response: response.data
+        });
+        
+    } catch (error) {
+        console.error('Error fetching from Wger API:', error.message);
+        res.status(500).json({ 
+            success: false,
+            error: error.message,
+            search_term: searchTerm
+        });
+    }
 });
 
 module.exports = router;
