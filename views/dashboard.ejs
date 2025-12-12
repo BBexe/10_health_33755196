@@ -1,38 +1,54 @@
 <%- include('header') %>
-    <h1>Welcome, <%= (typeof user !== 'undefined' && user) ? user.username : 'Guest' %>!</h1>
-    <p>This is your dashboard.</p>
-    <p><a href="/schedule">View Class Schedule</a></p>
+<link rel="stylesheet" href="/css/dashboard.css">
+
+<div class="dashboard-container">
     
-    <h3>My Bookings</h3>
+    <div class="dashboard-header">
+        <h1>Welcome, <%= (typeof user !== 'undefined' && user) ? user.username : 'Guest' %>!</h1>
+        <p>Here is your activity overview.</p>
+    </div>
+
+    <h3 class="section-title">My Bookings</h3>
+
     <% if (typeof bookings !== 'undefined' && bookings.length > 0) { %>
-        <table border="1" cellpadding="10" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Activity</th>
-                    <th>Day</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% bookings.forEach(booking => { %>
+        <div class="table-responsive">
+            <table class="bookings-table">
+                <thead>
                     <tr>
-                        <td><%= booking.name %></td>
-                        <td><%= booking.day %></td>
-                        <td><%= booking.start_time %></td>
-                        <td><%= booking.status %></td>
-                        <td>
-                            <form action="/schedule/cancel" method="POST" onsubmit="return confirm('Are you sure you want to cancel? Tokens will be refunded.');">
-                                <input type="hidden" name="booking_id" value="<%= booking.id %>">
-                                <button type="submit" class="cancel-btn">Cancel</button>
-                            </form>
-                        </td>
+                        <th>Activity</th>
+                        <th>Day</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Action</th>
                     </tr>
-                <% }) %>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <% bookings.forEach(booking => { %>
+                        <tr>
+                            <td><span class="activity-name"><%= booking.name %></span></td>
+                            <td><%= booking.day %></td>
+                            <td><%= booking.start_time %></td>
+                            <td>
+                                <span class="status-badge"><%= booking.status %></span>
+                            </td>
+                            <td style="text-align: right;">
+                                <form action="/schedule/cancel" method="POST" onsubmit="return confirm('Are you sure you want to cancel? Tokens will be refunded.');">
+                                    <input type="hidden" name="booking_id" value="<%= booking.id %>">
+                                    <button type="submit" class="cancel-btn">Cancel</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
     <% } else { %>
-        <p>You haven't booked any classes yet.</p>
+        <div class="empty-state">
+            <p>You haven't booked any classes yet.</p>
+            <a href="/" class="btn-primary">Browse Schedule</a>
+        </div>
     <% } %>
+
+</div>
+
 <%- include('footer') %>

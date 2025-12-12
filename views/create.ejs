@@ -1,4 +1,4 @@
-<%- include('../header') %>
+<%- include('header') %>
 <link rel="stylesheet" href="/css/routines.css">
 
 <div class="routine-creator-layout">
@@ -17,7 +17,7 @@
         
         <div class="form-actions">
             <button type="submit">Save Routine</button>
-            <a href="/routines">Cancel</a>
+            <a href="/routines" class="btn-danger">Cancel</a>
         </div>
     </form>
     
@@ -30,7 +30,7 @@
                     <div class="exercise-item">
                         <div class="exercise-info">
                             <strong><%= exercise.exercise_name %></strong>
-                            <span><%= exercise.sets %> sets × <%= exercise.reps %> reps</span>
+                            <span><%= exercise.sets %> sets x <%= exercise.reps %> reps</span>
                         </div>
                         <form action="/routines/remove-exercise" method="POST" style="display: inline;">
                             <input type="hidden" name="index" value="<%= index %>">
@@ -76,4 +76,4 @@
     </div>
 </div>
 
-<%- include('../footer') %>
+<%- include('footer') %>

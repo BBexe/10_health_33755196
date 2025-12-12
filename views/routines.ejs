@@ -1,8 +1,8 @@
-<%- include('../header') %>
+<%- include('header') %>
 <link rel="stylesheet" href="/css/routines.css">
 
 <div class="routines-container">
-    <div class="page-header">
+    <div class="page-title">
         <h1>My Routines</h1>
         <a href="/routines/new" class="btn-primary">Create New Routine</a>
     </div>
@@ -12,6 +12,7 @@
             <p>You haven't created any routines yet.</p>
             <a href="/routines/new" class="btn-primary">Create Your First Routine</a>
         </div>
+    
     <% } else { %>
         <div class="routines-grid">
             <% routines.forEach(routine => { %>
@@ -38,6 +39,11 @@
                     </div>
                     
                     <div class="routine-meta">
+                        <form action="/routines/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this routine?');">
+                            <input type="hidden" name="routine_id" value="<%= routine.id %>">
+                            <button type="submit" class="btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">Delete</button>
+                        </form>
+
                         <small>Created: <%= new Date(routine.created_at).toLocaleDateString() %></small>
                     </div>
                 </div>
@@ -46,4 +52,4 @@
     <% } %>
 </div>
 
-<%- include('../footer') %>
+<%- include('footer') %>

@@ -1,0 +1,133 @@
+/* Community Activity Container */
+.community-container {
+    max-width: 1130px; 
+    margin: 0 auto;
+    padding: 30px 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+.page-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 40px;
+    font-size: 2rem;
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+
+
+/* Grid Layout */
+.social-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 25px;
+}
+
+/* Activity Card Styling */
+.activity-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.activity-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Avatar Styling */
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5em;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(108, 92, 231, 0.3);
+}
+
+/* Content Styling */
+.activity-info {
+    flex-grow: 1;
+}
+
+.username {
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-bottom: 4px;
+    color: #2d3436;
+}
+
+.activity-details {
+    margin-bottom: 8px;
+    color: #636e72;
+    font-size: 0.95em;
+}
+
+.activity-details strong {
+    color: #6c5ce7; 
+}
+
+.timestamp {
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #b2bec3;
+    font-weight: 500;
+}
+
+.separator {
+    color: #dfe6e9;
+    font-size: 0.6em;
+}
+
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    color: #636e72;
+    border: 1px solid #eee;
+}
+
+.empty-state h3 {
+    margin-top: 0;
+    color: #2d3436;
+}
+
+.btn-action {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 25px;
+    background-color: #00b894; 
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.2s;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-action:hover {
+    background-color: #00a884;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}

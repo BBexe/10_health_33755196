@@ -20,7 +20,7 @@ router.get('/', redirectLogin, (req, res) => {
         }
         
         if (routines.length === 0) {
-            return res.render('routines/index', { 
+            return res.render('routines', { 
                 user: req.session.user,
                 routines: []
             });
@@ -39,7 +39,7 @@ router.get('/', redirectLogin, (req, res) => {
                 routine.exercises = exercises.filter(ex => ex.routine_id === routine.routine_id);
             });
             
-            res.render('routines/index', { 
+            res.render('routines', { 
                 user: req.session.user,
                 routines: routines
             });
@@ -53,7 +53,7 @@ router.get('/new', redirectLogin, (req, res) => {
         req.session.tempRoutine = { exercises: [] };
     }
     
-    res.render('routines/new', { 
+    res.render('create', { 
         user: req.session.user,
         tempRoutine: req.session.tempRoutine,
         searchResults: null
@@ -73,7 +73,7 @@ router.post('/search', redirectLogin, async (req, res) => {
             params: { term: query, language: 2 }
         });
         const searchResults = response.data.suggestions || [];
-        res.render('routines/new', {
+        res.render('create', {
             user: req.session.user,
             tempRoutine: req.session.tempRoutine,
             searchResults: searchResults
