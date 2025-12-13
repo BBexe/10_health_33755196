@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-    padding: 20px;
+    padding: 80px 20px 20px 20px;
     position: relative;
     z-index: 1;
 }
@@ -44,7 +44,50 @@ nav {
     opacity: 0.8;
 }
 
-h1 {
-    color: #333;
+.token-balance {
+    color: #ffd700;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
 }
 
+.token-balance .material-symbols-outlined {
+    font-size: 1.2rem;
+}
+
+/* Global Typography */
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+/* Consistent Subtitle Style (*/
+h1+p {
+    text-align: center;
+    color: #666;
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-size: 1rem;
+}

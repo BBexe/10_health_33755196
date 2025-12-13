@@ -1,113 +1,142 @@
 <%- include('header') %>
-<div class="schedule-container">
-    <h1>Welcome to Gym&Gain</h1>
-    <p style="text-align: center; margin-bottom: 20px;">Your weekly class schedule</p>
-    
-    <!-- Search Bar -->
-    <div class="search-container">
-        <form action="/" method="GET">
-            <input type="text" name="search" placeholder="Search for a class (e.g. Yoga)..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
-            <button type="submit">🔍 Search</button>
-            <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
-                <a href="/" class="clear-search">Clear</a>
-            <% } %>
-        </form>
-    </div>
+    <div class="schedule-container">
+        <h1>Welcome to Gym&Gain</h1>
+        <h2>Class Schedule</h2>
 
-    <!-- Weekly Schedule List View -->
-    <div class="schedule-list-container">
-        <table class="schedule-table">
-            <thead>
-                <tr>
-                    <th>Day</th>
-                    <th>Time</th>
-                    <th>Class</th>
-                    <th>Description</th>
-                    <th>Tier</th>
-                    <th>Cost</th>
-                    <th>Availability</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% schedule.forEach(item => { %>
+        <!-- Search Bar -->
+        <div class="search-container">
+            <form action="/" method="GET">
+                <input type="text" name="search" placeholder="Search for a class (e.g. Yoga)..."
+                    value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+                <button type="submit">Search</button>
+                <% if (typeof searchQuery !=='undefined' && searchQuery) { %>
+                    <a href="/" class="clear-search">Clear</a>
+                    <% } %>
+            </form>
+        </div>
+
+        <!-- Weekly Schedule List View -->
+        <div class="schedule-list-container">
+            <table class="schedule-table">
+                <thead>
                     <tr>
-                        <td>
-                            <strong><%= item.day %></strong>
-                            <div style="font-size: 0.8em; color: #888;"><%= weekDates[item.day] %></div>
-                        </td>
-                        <td><%= item.start_time.slice(0,5) %></td>
-                        <td>
-                            <div class="class-card class-card-list class-<%= item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') %>">
-                                <div class="class-name"><%= item.name %></div>
-                            </div>
-                        </td>
-                        <td><%= item.description %></td>
-                        <td>
-                            <% 
-                                let tierName = 'GUEST';
-                                let tierClass = 'tier-guest';
-                                if(item.tier_required === 2) { tierName = 'SILVER'; tierClass = 'tier-silver'; }
-                                if(item.tier_required === 3) { tierName = 'GOLD'; tierClass = 'tier-gold'; }
-                            %>
-                            <span class="tier-badge <%= tierClass %>"><%= tierName %></span>
-                        </td>
-                        <td><%= item.cost %> Tokens</td>
-                        <td>
-                            <span class="slots-display" data-id="<%= item.id %>" data-date="<%= weekDates[item.day] %>"><%= item.booked_count || 0 %></span> / <%= item.capacity %>
-                        </td>
-                        <td>
-                            <form class="booking-form" action="/schedule/book" method="POST">
-                                <input type="hidden" name="schedule_id" value="<%= item.id %>">
-                                <input type="hidden" name="booking_date" value="<%= weekDates[item.day] %>">
-                                <button type="submit" class="book-btn">Book Now</button>
-                            </form>
-                        </td>
+                        <th>Day</th>
+                        <th>Time</th>
+                        <th>Class</th>
+                        <th>Description</th>
+                        <th>Tier</th>
+                        <th>Cost</th>
+                        <th>Availability</th>
+                        <th>Action</th>
                     </tr>
-                <% }) %>
-                <% if (schedule.length === 0) { %>
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 30px;">No classes found matching your search.</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
-
-    <h2 style="margin-top: 50px; margin-bottom: 20px; text-align: center;">Weekly Overview</h2>
-
-    <!-- Weekly Schedule View -->
-    <div class="schedule-wrapper">
-        <% const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']; %>
-        <div class="schedule-grid">
-            <% days.forEach(day => { %>
-                <div class="day-column">
-                    <div class="day-header">
-                        <%= day %> <br>
-                        <span style="font-size: 0.8em; color: #666;"><%= weekDates[day] %></span>
-                    </div>
-                    <div class="day-content">
-                        <% const dayClasses = schedule.filter(s => s.day === day); %>
-                        <% if (dayClasses.length > 0) { %>
-                            <% dayClasses.forEach(item => { %>
-                                <div class="class-card class-<%= item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') %>">
-                                    <div class="class-name"><%= item.name %></div>
-                                    <div class="class-date">
-                                        <%= new Date(weekDates[day]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
-                                    </div>
-                                    <div class="class-slots">
-                                        <span class="slots-display" data-id="<%= item.id %>" data-date="<%= weekDates[day] %>"><%= item.booked_count || 0 %></span>/<%= item.capacity %> slots
+                </thead>
+                <tbody>
+                    <% schedule.forEach(item=> { %>
+                        <tr>
+                            <td>
+                                <strong>
+                                    <%= item.day %>
+                                </strong>
+                                <div style="font-size: 0.8em; color: #888;">
+                                    <%= weekDates[item.day] %>
+                                </div>
+                            </td>
+                            <td>
+                                <%= item.start_time.slice(0,5) %>
+                            </td>
+                            <td>
+                                <div
+                                    class="class-card class-card-list class-<%= item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') %>">
+                                    <div class="class-name">
+                                        <%= item.name %>
                                     </div>
                                 </div>
-                            <% }) %>
-                        <% } else { %>
-                            <div class="no-classes">-</div>
-                        <% } %>
-                    </div>
+                            </td>
+                            <td>
+                                <%= item.description %>
+                            </td>
+                            <td>
+                                <% let tierName='BASIC' ; let tierClass='tier-basic' ; if(item.tier_required===2) {
+                                    tierName='SILVER' ; tierClass='tier-silver' ; } if(item.tier_required===3) {
+                                    tierName='GOLD' ; tierClass='tier-gold' ; } %>
+                                    <span class="tier-badge <%= tierClass %>">
+                                        <%= tierName %>
+                                    </span>
+                            </td>
+                            <td>
+                                <%= item.cost %> Tokens
+                            </td>
+                            <td>
+                                <span class="slots-display" data-id="<%= item.id %>"
+                                    data-date="<%= weekDates[item.day] %>">
+                                    <%= item.booked_count || 0 %>
+                                </span> / <%= item.capacity %>
+                            </td>
+                            <td>
+                                <form class="booking-form" action="/schedule/book" method="POST">
+                                    <input type="hidden" name="schedule_id" value="<%= item.id %>">
+                                    <input type="hidden" name="booking_date" value="<%= weekDates[item.day] %>">
+                                    <button type="submit" class="book-btn">Book Now</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% }) %>
+                            <% if (schedule.length===0) { %>
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 30px;">No classes found matching
+                                        your search.</td>
+                                </tr>
+                                <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Weekly Overview</h2>
+
+        <!-- Weekly Schedule View -->
+        <div class="schedule-wrapper">
+            <% const days=['Monday', 'Tuesday' , 'Wednesday' , 'Thursday' , 'Friday' , 'Saturday' , 'Sunday' ]; %>
+                <div class="schedule-grid">
+                    <% days.forEach(day=> { %>
+                        <div class="day-column">
+                            <div class="day-header">
+                                <%= day %> <br>
+                                    <span style="font-size: 0.8em; color: #666;">
+                                        <%= weekDates[day] %>
+                                    </span>
+                            </div>
+                            <div class="day-content">
+                                <% const dayClasses=schedule.filter(s=> s.day === day); %>
+                                    <% if (dayClasses.length> 0) { %>
+                                        <% dayClasses.forEach(item=> { %>
+                                            <div
+                                                class="class-card class-<%= item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') %>">
+                                                <div class="class-name">
+                                                    <%= item.name %>
+                                                </div>
+                                                <div class="class-time" style="font-size: 0.9em; margin-bottom: 2px;">
+                                                    <%= item.start_time.slice(0,5) %>
+                                                </div>
+                                                <div class="class-date">
+                                                    <%= new Date(weekDates[day]).toLocaleDateString('en-US', {
+                                                        month: 'short' , day: 'numeric' }) %>
+                                                </div>
+                                                <div class="class-slots">
+                                                    <span class="slots-display" data-id="<%= item.id %>"
+                                                        data-date="<%= weekDates[day] %>">
+                                                        <%= item.booked_count || 0 %>
+                                                    </span>/<%= item.capacity %> slots
+                                                </div>
+                                            </div>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <div class="no-classes">-</div>
+                                                    <% } %>
+                            </div>
+                        </div>
+                        <% }) %>
                 </div>
-            <% }) %>
         </div>
     </div>
-</div>
 
-<%- include('footer') %>
+    <%- include('footer') %>

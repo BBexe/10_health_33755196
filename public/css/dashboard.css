@@ -2,7 +2,7 @@
 .dashboard-container {
     max-width: 1130px;
     margin: 0 auto;
-    padding: 30px 20px;
+    padding: 0 20px;
     font-family: 'Inter', sans-serif;
 }
 
@@ -11,14 +11,11 @@
     margin-bottom: 30px;
     border-bottom: 2px solid #f0f0f0;
     padding-bottom: 15px;
+    text-align: center;
+
 }
 
-.dashboard-header h1 {
-    color: #333;
-    margin: 0 0 10px 0;
-    font-size: 1.8rem;
-    font-weight: 700;
-}
+
 
 .dashboard-header p {
     color: #636e72;
@@ -26,14 +23,75 @@
     font-size: 1.1rem;
 }
 
-.section-title {
-    color: #2d3436;
-    margin: 30px 0 20px;
-    font-size: 1.4rem;
-    font-weight: 600;
+/* --- User Info Section --- */
+.user-info-section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
     display: flex;
+    justify-content: space-around;
     align-items: center;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.user-stat {
+    text-align: center;
+    flex: 1;
+    min-width: 150px;
+}
+
+.stat-label {
+    display: block;
+    color: #636e72;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    display: block;
+    color: #2d3436;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.stat-value.tokens {
+    color: #00b894;
+
+}
+
+.stat-value.tier {
+    color: #6c5ce7;
+    text-transform: capitalize;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background-color: #eee;
+    display: none;
+}
+
+@media (min-width: 600px) {
+    .stat-divider {
+        display: block;
+    }
+}
+
+/* Standardize Section Title */
+.section-title {
+    color: #333;
+    margin: 30px 0 20px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    display: block;
 }
 
 /* --- Table Styling --- */
@@ -41,18 +99,18 @@
     overflow-x: auto;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     border: 1px solid #eee;
 }
 
 .bookings-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px; 
+    min-width: 600px;
 }
 
 .bookings-table th {
-    background: #6c5ce7; /* Purple Theme */
+    background: #6c5ce7;
     color: white;
     padding: 15px 20px;
     text-align: left;
@@ -102,7 +160,7 @@
 
 /* --- Action Buttons--- */
 .cancel-btn {
-    background: #dc3545; /* Red */
+    background: #dc3545;
     color: white;
     border: none;
     padding: 6px 14px;
@@ -111,13 +169,13 @@
     font-weight: 600;
     font-size: 0.85rem;
     transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .cancel-btn:hover {
     background: #c82333;
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* --- Empty State  --- */
@@ -126,7 +184,7 @@
     padding: 50px;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     color: #636e72;
     border: 1px solid #eee;
 }
@@ -135,7 +193,7 @@
     display: inline-block;
     margin-top: 15px;
     padding: 10px 20px;
-    background-color: #00b894; /* Green */
+    background-color: #00b894;
     color: white;
     text-decoration: none;
     border-radius: 6px;

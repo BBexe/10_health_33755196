@@ -1,11 +1,11 @@
 /* --- Layout Global --- */
 .routines-container,
 .routine-creator-layout {
-    max-width: 1130px; 
-    margin: 0 auto;    
-    padding: 0 20px;  
-    width: 100%;       
-    box-sizing: border-box; 
+    max-width: 1130px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .page-title {
@@ -17,17 +17,12 @@
     padding-bottom: 15px;
 }
 
-.page-title h1 {
-    color: #333;
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: 700;
-}
+/* Inherit H1 styles from global style.css */
 
 /* --- Buttons --- */
-.btn-primary, 
+.btn-primary,
 button[type="submit"] {
-    background-color: #00b894; 
+    background-color: #00b894;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -37,14 +32,14 @@ button[type="submit"] {
     text-decoration: none;
     transition: all 0.2s ease;
     display: inline-block;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary:hover,
 button[type="submit"]:hover {
     background-color: #00a884;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 
@@ -59,12 +54,27 @@ button[type="submit"]:hover {
     transition: background 0.2s;
 }
 
+/* Match Home Page Search Button Style */
+.exercise-section button[type="submit"] {
+    background-color: #6c5ce7;
+    /* Brand Purple */
+    padding: 10px 20px;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.exercise-section button[type="submit"]:hover {
+    background-color: #5b4cc4;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 .btn-secondary:hover {
     background-color: #2d3436;
 }
 
 .btn-remove {
-    background: #dc3545; 
+    background: #dc3545;
     color: white;
     border: none;
     padding: 6px 12px;
@@ -79,7 +89,8 @@ button[type="submit"]:hover {
 }
 
 .btn-danger {
-    background-color: #dc3545; 
+    background-color: #ff4757;
+    /* Vibrant Red */
     color: white;
     padding: 10px 20px;
     border-radius: 6px;
@@ -89,13 +100,24 @@ button[type="submit"]:hover {
     cursor: pointer;
     display: inline-block;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-danger:hover {
-    background-color: #c82333; 
-    transform: translateY(-1px); 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+    background-color: #ff6b81;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Specific small delete button in cards */
+.routine-meta .btn-danger {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    background-color: #ff4757;
+}
+
+.routine-meta .btn-danger:hover {
+    background-color: #ff6b81;
 }
 
 
@@ -109,7 +131,7 @@ button[type="submit"]:hover {
 .routine-card {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
     border: 1px solid #eee;
@@ -119,7 +141,7 @@ button[type="submit"]:hover {
 
 .routine-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .routine-card h3 {
@@ -180,10 +202,10 @@ button[type="submit"]:hover {
     border-top: 1px solid #eee;
     color: #b2bec3;
     font-size: 0.85rem;
-    
+
     /* Flexbox magic for Left/Right alignment */
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -192,7 +214,7 @@ button[type="submit"]:hover {
     padding: 60px;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     color: #636e72;
 }
 
@@ -243,10 +265,10 @@ button[type="submit"]:hover {
     background: white;
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.exercise-section h3, 
+.exercise-section h3,
 .exercise-section h4 {
     color: #2d3436;
     margin-top: 0;
@@ -262,7 +284,7 @@ button[type="submit"]:hover {
     border: 1px solid #eee;
     border-left: 4px solid #6c5ce7;
     border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     transition: transform 0.2s;
 }
 
@@ -299,7 +321,7 @@ button[type="submit"]:hover {
     margin-bottom: 10px;
     border-radius: 8px;
     border: 1px solid #dfe6e9;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .result-item label {

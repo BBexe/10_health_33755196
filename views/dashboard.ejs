@@ -1,54 +1,93 @@
 <%- include('header') %>
-<link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
 
-<div class="dashboard-container">
-    
-    <div class="dashboard-header">
-        <h1>Welcome, <%= (typeof user !== 'undefined' && user) ? user.username : 'Guest' %>!</h1>
-        <p>Here is your activity overview.</p>
+    <div class="dashboard-container">
+
+        <div class="dashboard-header">
+            <h1>Welcome, <%= (typeof user !=='undefined' && user) ? user.username : 'Guest' %>!</h1>
+            <p>Here is your activity overview.</p>
+        </div>
+
+        <!-- User Info Cards -->
+        <% if (typeof user !=='undefined' && user) { %>
+            <div class="user-info-section">
+                <div class="user-stat">
+                    <span class="stat-label">Username</span>
+                    <span class="stat-value">
+                        <%= user.username %>
+                    </span>
+                </div>
+
+                <div class="stat-divider"></div>
+
+                <div class="user-stat">
+                    <span class="stat-label">Token Balance</span>
+                    <span class="stat-value tokens">
+                        <%= user.token_balance %>
+                    </span>
+                </div>
+
+                <div class="stat-divider"></div>
+
+                <div class="user-stat">
+                    <span class="stat-label">Membership Tier</span>
+                    <span class="stat-value tier">
+                        <%= user.membership_tier %>
+                    </span>
+                </div>
+            </div>
+            <% } %>
+
+                <h3 class="section-title">My Bookings</h3>
+
+                <% if (typeof bookings !=='undefined' && bookings.length> 0) { %>
+                    <div class="table-responsive">
+                        <table class="bookings-table">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% bookings.forEach(booking=> { %>
+                                    <tr>
+                                        <td><span class="activity-name">
+                                                <%= booking.name %>
+                                            </span></td>
+                                        <td>
+                                            <%= booking.day %>
+                                        </td>
+                                        <td>
+                                            <%= booking.start_time %>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge">
+                                                <%= booking.status %>
+                                            </span>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <form action="/schedule/cancel" method="POST"
+                                                onsubmit="return confirm('Are you sure you want to cancel? Tokens will be refunded.');">
+                                                <input type="hidden" name="booking_id" value="<%= booking.id %>">
+                                                <button type="submit" class="cancel-btn">Cancel</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <p>You haven't booked any classes yet.</p>
+                            <a href="/" class="btn-primary">Browse Schedule</a>
+                        </div>
+                        <% } %>
+
     </div>
 
-    <h3 class="section-title">My Bookings</h3>
-
-    <% if (typeof bookings !== 'undefined' && bookings.length > 0) { %>
-        <div class="table-responsive">
-            <table class="bookings-table">
-                <thead>
-                    <tr>
-                        <th>Activity</th>
-                        <th>Day</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                        <th style="text-align: right;">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% bookings.forEach(booking => { %>
-                        <tr>
-                            <td><span class="activity-name"><%= booking.name %></span></td>
-                            <td><%= booking.day %></td>
-                            <td><%= booking.start_time %></td>
-                            <td>
-                                <span class="status-badge"><%= booking.status %></span>
-                            </td>
-                            <td style="text-align: right;">
-                                <form action="/schedule/cancel" method="POST" onsubmit="return confirm('Are you sure you want to cancel? Tokens will be refunded.');">
-                                    <input type="hidden" name="booking_id" value="<%= booking.id %>">
-                                    <button type="submit" class="cancel-btn">Cancel</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        </div>
-    <% } else { %>
-        <div class="empty-state">
-            <p>You haven't booked any classes yet.</p>
-            <a href="/" class="btn-primary">Browse Schedule</a>
-        </div>
-    <% } %>
-
-</div>
-
-<%- include('footer') %>
+    <%- include('footer') %>
