@@ -63,29 +63,31 @@
                                         <small>Created: <%= new Date(routine.created_at).toLocaleDateString() %></small>
                                     </div>
                         </div>
-
                 </div>
-
+                <% }) %>
     </div>
+    <% } %>
+
+        </div>
 
 
-    <%- include('footer') %>
+        <%- include('footer') %>
 
-        <!-- Script for routine delete confirmation -->
-        <script>
-            function confirmDelete(routineId) {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('deleteForm-' + routineId).submit();
-                    }
-                })
-            }
-        </script>
+            <!-- Script for routine delete confirmation -->
+            <script>
+                function confirmDelete(routineId) {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById('deleteForm-' + routineId).submit();
+                        }
+                    })
+                }
+            </script>
