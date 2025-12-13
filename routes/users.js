@@ -44,7 +44,7 @@ router.post('/register', [
 
         db.query(sql, [username, firstname, lastname, email, hashedPassword], (err, result) => {
             if (err) {
-                // --- DEBUGGING: detailed logs for DB errors ---
+                // logs for DB errors
                 console.error('DATABASE ERROR during Register:');
                 console.error('Code:', err.code);
                 console.error('Message:', err.sqlMessage);
