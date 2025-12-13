@@ -11,7 +11,7 @@ CREATE TABLE Users (
     password VARCHAR(255) NOT NULL,
     token_balance INT DEFAULT 50,
     membership_type ENUM('guest', 'member', 'admin') DEFAULT 'guest',
-    membership_tier ENUM('none', 'silver', 'gold') DEFAULT 'none'
+    membership_tier ENUM('basic', 'silver', 'gold') DEFAULT 'basic'
 );
 
 CREATE TABLE login_audit (

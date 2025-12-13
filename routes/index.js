@@ -7,20 +7,20 @@ const redirectLogin = require('../middleware/auth');
 function getNextWeekDates() {
     const weekDates = {};
     const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const dayMap = {'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6};
+    const dayMap = { 'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6 };
     const today = new Date();
-    const currentDay = today.getDay(); // 0 (Sun) - 6 (Sat)
-    
+    const currentDay = today.getDay(); 
+
     dayNames.forEach(day => {
         const targetDay = dayMap[day];
         let daysUntil = targetDay - currentDay;
         if (daysUntil <= 0) daysUntil += 7;
-        
+
         const nextDate = new Date(today);
         nextDate.setDate(today.getDate() + daysUntil);
         weekDates[day] = nextDate.toISOString().split('T')[0];
     });
-    
+
     return weekDates;
 }
 
@@ -40,13 +40,13 @@ router.get('/', (req, res) => {
         FROM schedule s 
         JOIN activities a ON s.activity_id = a.id
     `;
-    
+
     const params = [];
     if (searchQuery) {
         query += ' WHERE a.name LIKE ?';
         params.push(`%${searchQuery}%`);
     }
-    
+
     query += ' ORDER BY FIELD(day, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), start_time';
 
     db.query(query, params, (err, results) => {
@@ -54,7 +54,7 @@ router.get('/', (req, res) => {
             console.error(err);
             return res.status(500).send('Server Error');
         }
-        
+
         // Fetch booking counts for the displayed week
         const bookingQuery = `
             SELECT schedule_id, booking_date, COUNT(*) as count 
@@ -67,8 +67,8 @@ router.get('/', (req, res) => {
             if (err) {
                 console.error('Error fetching booking counts:', err);
                 // Continue without counts if error
-                return res.render('index', { 
-                    title: 'Gym&Gain - Home', 
+                return res.render('index', {
+                    title: 'Gym&Gain - Home',
                     user: req.session.user,
                     schedule: results,
                     searchQuery: searchQuery,
@@ -79,8 +79,8 @@ router.get('/', (req, res) => {
             // Map counts to schedule items
             results.forEach(item => {
                 const itemDate = weekDates[item.day];
-                const countRecord = bookingCounts.find(b => 
-                    b.schedule_id === item.id && 
+                const countRecord = bookingCounts.find(b =>
+                    b.schedule_id === item.id &&
                     // Compare dates as strings to avoid timezone issues
                     new Date(b.booking_date).toISOString().split('T')[0] === itemDate
                 );
@@ -88,9 +88,9 @@ router.get('/', (req, res) => {
             });
 
             console.log('Rendering index with schedule items:', results ? results.length : 'null');
-            
-            res.render('index', { 
-                title: 'Gym&Gain - Home', 
+
+            res.render('index', {
+                title: 'Gym&Gain - Home',
                 user: req.session.user,
                 schedule: results,
                 searchQuery: searchQuery,
@@ -129,8 +129,40 @@ router.get('/social', redirectLogin, (req, res) => {
 
 // Dashboard Route
 router.get('/dashboard', redirectLogin, (req, res) => {
-    const currentUser = req.session.user;
-    
+    const userId = req.session.user.id;
+
+    // 1. Fetch latest user details (balance, tier) from DB
+    const userSql = "SELECT * FROM Users WHERE id = ?";
+
+    db.query(userSql, [userId], (err, userResults) => {
+        if (err || userResults.length === 0) {
+            console.error('Error fetching fresh user data:', err);
+            // Fallback to session user if DB fails, but log it
+            return renderDashboard(req, res, req.session.user);
+        }
+
+        const freshUser = userResults[0];
+
+        // Update session with fresh data
+        req.session.user = {
+            id: freshUser.id,
+            username: freshUser.username,
+            firstname: freshUser.firstname,
+            lastname: freshUser.lastname,
+            email: freshUser.email,
+            token_balance: freshUser.token_balance,
+            membership_type: freshUser.membership_type,
+            membership_tier: freshUser.membership_tier
+        };
+
+        // Save session (async) but don't block rendering
+        req.session.save();
+
+        renderDashboard(req, res, req.session.user);
+    });
+});
+
+function renderDashboard(req, res, currentUser) {
     const sql = `
         SELECT b.id, a.name, s.day, s.start_time, b.status 
         FROM Bookings b
@@ -139,16 +171,15 @@ router.get('/dashboard', redirectLogin, (req, res) => {
         WHERE b.user_id = ?
         ORDER BY b.booking_date DESC, s.start_time ASC
     `;
-    
+
     db.query(sql, [currentUser.id], (err, results) => {
         if (err) {
             console.error('Dashboard DB Error:', err);
             return res.render('dashboard', { title: 'Dashboard', user: currentUser, bookings: [], error: 'Error fetching bookings' });
         }
-        // Explicitly set res.locals.user to ensure it's available to all views/partials
         res.locals.user = currentUser;
         res.render('dashboard', { title: 'Dashboard', user: currentUser, bookings: results });
     });
-});
+}
 
 module.exports = router;
