@@ -1,5 +1,55 @@
 <%- include('header') %>
-<h1>About Gym&Gain</h1>
-<p>We are dedicated to helping you achieve your fitness goals.</p>
-<p>Our facility offers state-of-the-art equipment and expert trainers.</p>
-<%- include('footer') %>
+    <link rel="stylesheet" href="/css/about.css">
+
+    <div class="about-container">
+        <h1>About Gym&Gain</h1>
+        <p>Your ultimate companion for managing fitness classes, tracking routines, and joining a community of fitness
+            enthusiasts.</p>
+
+        <div class="intro-text">
+            <p>
+                Gym&Gain is designed to streamline your fitness journey. Whether you are looking to book a
+                high-intensity interval class,
+                design your own weightlifting routine, or simply track your progress, we have the tools you need.
+            </p>
+        </div>
+
+        <div class="features-grid">
+            <!-- Feature 1: Schedule -->
+            <div class="feature-card">
+                <div class="feature-icon"><span class="material-symbols-outlined">calendar_month</span></div>
+                <h3>Class Schedule</h3>
+                <p>Explore our weekly schedule and book classes ranging from Yoga to HIIT. Manage your bookings
+                    seamlessly.</p>
+                <a href="/" class="btn-feature">View Schedule</a>
+            </div>
+
+            <!-- Feature 2: Dashboard -->
+            <div class="feature-card">
+                <div class="feature-icon"><span class="material-symbols-outlined">monitoring</span></div>
+                <h3>User Dashboard</h3>
+                <p>Track your token balance, view upcoming classes, and manage your membership status all in one place.
+                </p>
+                <a href="/dashboard" class="btn-feature">Go to Dashboard</a>
+            </div>
+
+            <!-- Feature 3: Routines -->
+            <div class="feature-card">
+                <div class="feature-icon"><span class="material-symbols-outlined">fitness_center</span></div>
+                <h3>Custom Routines</h3>
+                <p>Create personalized workout routines, add exercises, and track your sets and reps to ensure
+                    progressive overload.</p>
+                <a href="/routines" class="btn-feature">My Routines</a>
+            </div>
+
+            <!-- Feature 4: Community -->
+            <div class="feature-card">
+                <div class="feature-icon"><span class="material-symbols-outlined">groups</span></div>
+                <h3>Community</h3>
+                <p>See what others are booking and stay motivated by being part of our active fitness community.</p>
+                <a href="/social" class="btn-feature">Join Community</a>
+            </div>
+        </div>
+    </div>
+
+    <%- include('footer') %>

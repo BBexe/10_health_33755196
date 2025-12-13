@@ -1,3 +1,4 @@
+// Import required modules
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
@@ -36,6 +37,7 @@ router.post('/book', redirectLogin, (req, res) => {
     console.log(`[BOOKING] Attempt started: User ${userId} -> Schedule ${scheduleId} on ${bookingDate}`);
 
     if (!bookingDate) {
+        // Booking date is required
         console.warn(`[BOOKING] Failed: Missing booking date for User ${userId}`);
         return flashAndRedirect(req, res, 'error', 'Invalid booking date selected.');
     }
@@ -55,6 +57,7 @@ router.post('/book', redirectLogin, (req, res) => {
         }
 
         if (result.length === 0) {
+            // No such class found
             console.warn(`[BOOKING] Failed: Schedule ${scheduleId} not found.`);
             return flashAndRedirect(req, res, 'error', 'Class not found.');
         }
@@ -86,16 +89,19 @@ router.post('/book', redirectLogin, (req, res) => {
 
                 // --- Validation Logic ---
                 if (existingBookings.length > 0) {
+                    // User already booked this class
                     console.log(`[BOOKING] Rejected: User ${userId} already booked Sched ${scheduleId}`);
                     return flashAndRedirect(req, res, 'error', 'You have already booked this class!');
                 }
 
                 if (currentBookings >= classInfo.capacity) {
+                    // Class is full
                     console.log(`[BOOKING] Rejected: Class Full (${currentBookings}/${classInfo.capacity})`);
                     return flashAndRedirect(req, res, 'error', 'Class is full!');
                 }
 
                 if (user.token_balance < classInfo.cost) {
+                    // Not enough tokens
                     console.log(`[BOOKING] Rejected: Insufficient Funds (User: ${user.token_balance}, Cost: ${classInfo.cost})`);
                     return flashAndRedirect(req, res, 'error', 'Insufficient tokens! Please top up.');
                 }
@@ -103,6 +109,7 @@ router.post('/book', redirectLogin, (req, res) => {
                 // Check C: Membership Tier Logic
                 const userTierValue = user.membership_tier === 'gold' ? 3 : (user.membership_tier === 'silver' ? 2 : 1);
                 if (classInfo.tier_required > userTierValue) {
+                    // User's membership tier is too low
                     console.log(`[BOOKING] Rejected: Tier Mismatch (Required: ${classInfo.tier_required}, User: ${userTierValue})`);
                     return flashAndRedirect(req, res, 'error', 'This class requires a higher membership tier!');
                 }
@@ -125,6 +132,7 @@ router.post('/book', redirectLogin, (req, res) => {
                         const insertBooking = 'INSERT INTO Bookings (user_id, schedule_id, status, booking_date) VALUES (?, ?, "confirmed", ?)';
                         connection.query(insertBooking, [userId, scheduleId, bookingDate], (err) => {
                             if (err) {
+                                // Rollback if booking insert fails
                                 return connection.rollback(() => {
                                     connection.release();
                                     console.error('[BOOKING] Insert Failed:', err);
@@ -136,6 +144,7 @@ router.post('/book', redirectLogin, (req, res) => {
                             const updateTokens = 'UPDATE Users SET token_balance = token_balance - ? WHERE id = ?';
                             connection.query(updateTokens, [classInfo.cost, userId], (err) => {
                                 if (err) {
+                                    // Rollback if token deduction fails
                                     return connection.rollback(() => {
                                         connection.release();
                                         console.error('[BOOKING] Token Deduct Failed:', err);
@@ -146,6 +155,7 @@ router.post('/book', redirectLogin, (req, res) => {
                                 // Step 4c: Commit
                                 connection.commit(err => {
                                     if (err) {
+                                        // Rollback if commit fails
                                         return connection.rollback(() => {
                                             connection.release();
                                             console.error('[BOOKING] Commit Failed:', err);
@@ -205,6 +215,7 @@ router.post('/cancel', redirectLogin, (req, res) => {
 
             connection.query(getBookingSql, [booking_id, userId], (err, results) => {
                 if (err || results.length === 0) {
+                    // Booking not found or not owned by user
                     return connection.rollback(() => {
                         connection.release();
                         console.warn(`[CANCEL] Failed: Booking ${booking_id} not found/owned by User ${userId}`);
@@ -230,6 +241,7 @@ router.post('/cancel', redirectLogin, (req, res) => {
                     const refundSql = 'UPDATE Users SET token_balance = token_balance + ? WHERE id = ?';
                     connection.query(refundSql, [cost, userId], (err) => {
                         if (err) {
+                            // Rollback if refund fails
                             return connection.rollback(() => {
                                 connection.release();
                                 console.error('[CANCEL] Refund Failed:', err);
@@ -240,6 +252,7 @@ router.post('/cancel', redirectLogin, (req, res) => {
                         // 5. Commit
                         connection.commit(err => {
                             if (err) {
+                                // Rollback if commit fails
                                 return connection.rollback(() => {
                                     connection.release();
                                     console.error('[CANCEL] Commit Failed:', err);
@@ -262,4 +275,5 @@ router.post('/cancel', redirectLogin, (req, res) => {
     });
 });
 
+// Export the router
 module.exports = router;

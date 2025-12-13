@@ -1,8 +1,10 @@
 <%- include('header') %>
     <link rel="stylesheet" href="/css/dashboard.css">
 
+    <!-- Main dashboard container -->
     <div class="dashboard-container">
 
+        <!-- Dashboard header section -->
         <div class="dashboard-header">
             <h1>Welcome, <%= (typeof user !=='undefined' && user) ? user.username : 'Guest' %>!</h1>
             <p>Here is your activity overview.</p>
@@ -10,7 +12,9 @@
 
         <!-- User Info Cards -->
         <% if (typeof user !=='undefined' && user) { %>
+            <!-- User info cards section -->
             <div class="user-info-section">
+                <!-- Username card -->
                 <div class="user-stat">
                     <span class="stat-label">Username</span>
                     <span class="stat-value">
@@ -20,6 +24,7 @@
 
                 <div class="stat-divider"></div>
 
+                <!-- Token balance card -->
                 <div class="user-stat">
                     <span class="stat-label">Token Balance</span>
                     <span class="stat-value tokens">
@@ -29,6 +34,7 @@
 
                 <div class="stat-divider"></div>
 
+                <!-- Membership tier card -->
                 <div class="user-stat">
                     <span class="stat-label">Membership Tier</span>
                     <span class="stat-value tier">
@@ -41,7 +47,9 @@
                 <h3 class="section-title">My Bookings</h3>
 
                 <% if (typeof bookings !=='undefined' && bookings.length> 0) { %>
+                    <!-- Responsive table for bookings -->
                     <div class="table-responsive">
+                        <!-- Bookings table -->
                         <table class="bookings-table">
                             <thead>
                                 <tr>
@@ -71,9 +79,10 @@
                                         </td>
                                         <td style="text-align: right;">
                                             <form action="/schedule/cancel" method="POST"
-                                                onsubmit="return confirm('Are you sure you want to cancel? Tokens will be refunded.');">
+                                                id="cancelForm-<%= booking.id %>">
                                                 <input type="hidden" name="booking_id" value="<%= booking.id %>">
-                                                <button type="submit" class="cancel-btn">Cancel</button>
+                                                <button type="button" class="cancel-btn"
+                                                    onclick="confirmCancel('<%= booking.id %>')">Cancel</button>
                                             </form>
                                         </td>
                                     </tr>
@@ -82,6 +91,7 @@
                         </table>
                     </div>
                     <% } else { %>
+                        <!-- Empty state for no bookings -->
                         <div class="empty-state">
                             <p>You haven't booked any classes yet.</p>
                             <a href="/" class="btn-primary">Browse Schedule</a>
@@ -91,3 +101,22 @@
     </div>
 
     <%- include('footer') %>
+
+        <!-- Script for booking cancellation confirmation -->
+        <script>
+            function confirmCancel(bookingId) {
+                Swal.fire({
+                    title: 'Cancel Booking?',
+                    text: "Tokens will be refunded to your account.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, cancel it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('cancelForm-' + bookingId).submit();
+                    }
+                })
+            }
+        </script>

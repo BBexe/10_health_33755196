@@ -1,55 +1,91 @@
 <%- include('header') %>
-<link rel="stylesheet" href="/css/routines.css">
+    <link rel="stylesheet" href="/css/routines.css">
 
-<div class="routines-container">
-    <div class="page-title">
-        <h1>My Routines</h1>
-        <a href="/routines/new" class="btn-primary">Create New Routine</a>
+    <!-- Main routines container -->
+    <div class="routines-container">
+        <!-- Page title and create button -->
+        <div class="page-title">
+            <h1>My Routines</h1>
+            <a href="/routines/new" class="btn-primary">Create New Routine</a>
+        </div>
+
+        <% if (routines.length===0) { %>
+            <!-- Empty state for no routines -->
+            <div class="empty-state">
+                <p>You haven't created any routines yet.</p>
+                <a href="/routines/new" class="btn-primary">Create Your First Routine</a>
+            </div>
+
+            <% } else { %>
+                <!-- Grid of routine cards -->
+                <div class="routines-grid">
+                    <% routines.forEach(routine=> { %>
+                        <!-- Single routine card -->
+                        <div class="routine-card">
+                            <h3>
+                                <%= routine.routine_name %>
+                            </h3>
+                            <% if (routine.description) { %>
+                                <p class="routine-description">
+                                    <%= routine.description %>
+                                </p>
+                                <% } %>
+
+                                    <!-- Exercises list for routine -->
+                                    <div class="routine-exercises">
+                                        <h4>Exercises:</h4>
+                                        <% if (routine.exercises && routine.exercises.length> 0) { %>
+                                            <!-- List of exercises in routine -->
+                                            <ul class="exercise-list">
+                                                <% routine.exercises.forEach(exercise=> { %>
+                                                    <li>
+                                                        <strong>
+                                                            <%= exercise.exercise_name %>
+                                                        </strong>
+                                                        - <%= exercise.sets %> sets × <%= exercise.reps %> reps
+                                                    </li>
+                                                    <% }); %>
+                                            </ul>
+                                            <% } else { %>
+                                                <p class="no-exercises">No exercises added</p>
+                                                <% } %>
+                                    </div>
+
+                                    <!-- Routine meta info and delete button -->
+                                    <div class="routine-meta">
+                                        <form action="/routines/delete" method="POST"
+                                            id="deleteForm-<%= routine.routine_id %>">
+                                            <input type="hidden" name="routine_id" value="<%= routine.routine_id %>">
+                                            <button type="button" class="btn-danger"
+                                                onclick="confirmDelete('<%= routine.routine_id %>')">Delete</button>
+                                        </form>
+
+                                        <small>Created: <%= new Date(routine.created_at).toLocaleDateString() %></small>
+                                    </div>
+                        </div>
+
+                </div>
+
     </div>
 
-    <% if (routines.length === 0) { %>
-        <div class="empty-state">
-            <p>You haven't created any routines yet.</p>
-            <a href="/routines/new" class="btn-primary">Create Your First Routine</a>
-        </div>
-    
-    <% } else { %>
-        <div class="routines-grid">
-            <% routines.forEach(routine => { %>
-                <div class="routine-card">
-                    <h3><%= routine.routine_name %></h3>
-                    <% if (routine.description) { %>
-                        <p class="routine-description"><%= routine.description %></p>
-                    <% } %>
-                    
-                    <div class="routine-exercises">
-                        <h4>Exercises:</h4>
-                        <% if (routine.exercises && routine.exercises.length > 0) { %>
-                            <ul class="exercise-list">
-                                <% routine.exercises.forEach(exercise => { %>
-                                    <li>
-                                        <strong><%= exercise.exercise_name %></strong>
-                                        - <%= exercise.sets %> sets × <%= exercise.reps %> reps
-                                    </li>
-                                <% }); %>
-                            </ul>
-                        <% } else { %>
-                            <p class="no-exercises">No exercises added</p>
-                        <% } %>
-                    </div>
-                    
-                    <div class="routine-meta">
-                        <form action="/routines/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this routine?');">
-                            <input type="hidden" name="routine_id" value="<%= routine.id %>">
-                            <button type="submit" class="btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">Delete</button>
-                        </form>
 
-                        <small>Created: <%= new Date(routine.created_at).toLocaleDateString() %></small>
-                    </div>
-                </div>
-            <% }); %>
-        </div>
-    <% } %>
-</div>
+    <%- include('footer') %>
 
-<%- include('footer') %>
+        <!-- Script for routine delete confirmation -->
+        <script>
+            function confirmDelete(routineId) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('deleteForm-' + routineId).submit();
+                    }
+                })
+            }
+        </script>

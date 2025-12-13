@@ -1,79 +1,104 @@
 <%- include('header') %>
-<link rel="stylesheet" href="/css/routines.css">
+    <link rel="stylesheet" href="/css/routines.css">
 
-<div class="routine-creator-layout">
-    <h1>Create New Routine</h1>
-    
-    <form action="/routines" method="POST" style="max-width: 600px;">
-        <div class="form-group">
-            <label>Routine Name:</label>
-            <input type="text" name="routine_name" required>
-        </div>
-        
-        <div class="form-group">
-            <label>Description:</label>
-            <textarea name="description" rows="4"></textarea>
-        </div>
-        
-        <div class="form-actions">
-            <button type="submit">Save Routine</button>
-            <a href="/routines" class="btn-danger">Cancel</a>
-        </div>
-    </form>
-    
-    <div class="exercise-section">
-        <h3>Exercises</h3>
-        
-        <% if (tempRoutine.exercises && tempRoutine.exercises.length > 0) { %>
-            <div class="exercises-list">
-                <% tempRoutine.exercises.forEach((exercise, index) => { %>
-                    <div class="exercise-item">
-                        <div class="exercise-info">
-                            <strong><%= exercise.exercise_name %></strong>
-                            <span><%= exercise.sets %> sets x <%= exercise.reps %> reps</span>
-                        </div>
-                        <form action="/routines/remove-exercise" method="POST" style="display: inline;">
-                            <input type="hidden" name="index" value="<%= index %>">
-                            <button type="submit" class="btn-remove">Remove</button>
-                        </form>
-                    </div>
-                <% }); %>
-            </div>
-        <% } else { %>
-            <p class="empty-message">No exercises added yet.</p>
-        <% } %>
-        
-        <h4>Add Exercise</h4>
-        
-        <form action="/routines/search" method="POST" style="margin: 1rem 0;">
+    <!-- Main layout for routine creation page -->
+    <div class="routine-creator-layout">
+        <h1>Create New Routine</h1>
+
+        <!-- Form for creating a new routine -->
+        <form action="/routines" method="POST" style="max-width: 600px;">
+            <!-- Routine name input -->
             <div class="form-group">
-                <label>Search Exercise:</label>
-                <input type="text" name="query" placeholder="Type to search exercises..." autocomplete="off" required>
+                <label>Routine Name:</label>
+                <input type="text" name="routine_name" required>
             </div>
-            <button type="submit">Search</button>
+
+            <!-- Routine description input -->
+            <div class="form-group">
+                <label>Description:</label>
+                <textarea name="description" rows="4"></textarea>
+            </div>
+
+            <!-- Form action buttons (Save/Cancel) -->
+            <div class="form-actions">
+                <button type="submit">Save Routine</button>
+                <a href="/routines" class="btn-danger">Cancel</a>
+            </div>
         </form>
 
-        <% if (searchResults && searchResults.length > 0) { %>
-            <div class="search-results-list">
-                <p><strong>Search Results:</strong></p>
-                <% searchResults.forEach(result => { %>
-                    <form action="/routines/add-exercise" method="POST" class="add-exercise-form">
-                        <input type="hidden" name="exercise_id" value="<%= result.data.id %>">
-                        <input type="hidden" name="exercise_name" value="<%= result.value %>">
-                        
-                        <div class="result-item">
-                            <div><%= result.value %></div>
-                            <div>
-                                <label>Sets: <input type="number" name="sets" value="3" min="1" style="width: 60px;"></label>
-                                <label>Reps: <input type="number" name="reps" value="10" min="1" style="width: 60px;"></label>
-                                <button type="submit">Add</button>
-                            </div>
-                        </div>
-                    </form>
-                <% }); %>
-            </div>
-        <% } %>
-    </div>
-</div>
+        <!-- Section for managing exercises in the routine -->
+        <div class="exercise-section">
+            <h3>Exercises</h3>
 
-<%- include('footer') %>
+            <% if (tempRoutine.exercises && tempRoutine.exercises.length> 0) { %>
+                <!-- List of exercises added to the routine -->
+                <div class="exercises-list">
+                    <% tempRoutine.exercises.forEach((exercise, index)=> { %>
+                        <!-- Single exercise item -->
+                        <div class="exercise-item">
+                            <!-- Exercise info (name, sets, reps) -->
+                            <div class="exercise-info">
+                                <strong>
+                                    <%= exercise.exercise_name %>
+                                </strong>
+                                <span>
+                                    <%= exercise.sets %> sets x <%= exercise.reps %> reps
+                                </span>
+                            </div>
+                            <!-- Form to remove an exercise from the routine -->
+                            <form action="/routines/remove-exercise" method="POST" style="display: inline;">
+                                <input type="hidden" name="index" value="<%= index %>">
+                                <button type="submit" class="btn-remove">Remove</button>
+                            </form>
+                        </div>
+                        <% }); %>
+                </div>
+                <% } else { %>
+                    <!-- Message when no exercises are added -->
+                    <p class="empty-message">No exercises added yet.</p>
+                    <% } %>
+
+                        <h4>Add Exercise</h4>
+
+                        <!-- Form to search for exercises -->
+                        <form action="/routines/search" method="POST" style="margin: 1rem 0;">
+                            <!-- Search input for exercises -->
+                            <div class="form-group">
+                                <label>Search Exercise:</label>
+                                <input type="text" name="query" placeholder="Type to search exercises..."
+                                    autocomplete="off" required>
+                            </div>
+                            <button type="submit">Search</button>
+                        </form>
+
+                        <% if (searchResults && searchResults.length> 0) { %>
+                            <!-- List of search results for exercises -->
+                            <div class="search-results-list">
+                                <p><strong>Search Results:</strong></p>
+                                <% searchResults.forEach(result=> { %>
+                                    <!-- Form to add a searched exercise to the routine -->
+                                    <form action="/routines/add-exercise" method="POST" class="add-exercise-form">
+                                        <input type="hidden" name="exercise_id" value="<%= result.data.id %>">
+                                        <input type="hidden" name="exercise_name" value="<%= result.value %>">
+
+                                        <!-- Single search result item -->
+                                        <div class="result-item">
+                                            <div>
+                                                <%= result.value %>
+                                            </div>
+                                            <div>
+                                                <label>Sets: <input type="number" name="sets" value="3" min="1"
+                                                        style="width: 60px;"></label>
+                                                <label>Reps: <input type="number" name="reps" value="10" min="1"
+                                                        style="width: 60px;"></label>
+                                                <button type="submit">Add</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <% }); %>
+                            </div>
+                            <% } %>
+        </div>
+    </div>
+
+    <%- include('footer') %>

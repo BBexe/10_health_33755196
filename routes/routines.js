@@ -1,3 +1,4 @@
+// Import required modules
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
@@ -11,35 +12,40 @@ router.use(expressSanitizer());
 // GET /routines - View all routines
 router.get('/', redirectLogin, (req, res) => {
     const userId = req.session.user.id;
-    
+
+    // Query all routines for the user
     const routinesQuery = 'SELECT * FROM Routines WHERE user_id = ? ORDER BY created_at DESC';
     db.query(routinesQuery, [userId], (err, routines) => {
         if (err) {
             console.error('Error fetching routines:', err);
             return res.status(500).send('Error loading routines');
         }
-        
+
         if (routines.length === 0) {
-            return res.render('routines', { 
+            // No routines found, render empty list
+            return res.render('routines', {
                 user: req.session.user,
                 routines: []
             });
         }
-        
+
+        // Get all exercises for the found routines
         const routineIds = routines.map(r => r.routine_id);
         const exercisesQuery = 'SELECT * FROM Routine_Exercises WHERE routine_id IN (?) ORDER BY routine_id, order_index';
-        
+
         db.query(exercisesQuery, [routineIds], (err, exercises) => {
             if (err) {
                 console.error('Error fetching exercises:', err);
                 return res.status(500).send('Error loading exercises');
             }
-            
+
+            // Attach exercises to their respective routines
             routines.forEach(routine => {
                 routine.exercises = exercises.filter(ex => ex.routine_id === routine.routine_id);
             });
-            
-            res.render('routines', { 
+
+            // Render routines page with routines and exercises
+            res.render('routines', {
                 user: req.session.user,
                 routines: routines
             });
@@ -49,11 +55,13 @@ router.get('/', redirectLogin, (req, res) => {
 
 // GET /routines/new - Create routine form
 router.get('/new', redirectLogin, (req, res) => {
+    // Initialize tempRoutine in session if not present
     if (!req.session.tempRoutine) {
         req.session.tempRoutine = { exercises: [] };
     }
-    
-    res.render('create', { 
+
+    // Render the create routine form
+    res.render('create', {
         user: req.session.user,
         tempRoutine: req.session.tempRoutine,
         searchResults: null
@@ -66,13 +74,16 @@ router.post('/search', redirectLogin, async (req, res) => {
     let query = req.body.query || '';
     query = query.trim();
     if (query.length < 2) {
+        // Require at least 2 characters to search
         return res.redirect('/routines/new');
     }
     try {
+        // Call WGER API to search for exercises
         const response = await axios.get('https://wger.de/api/v2/exercise/search/', {
             params: { term: query, language: 2 }
         });
         const searchResults = response.data.suggestions || [];
+        // Render form with search results
         res.render('create', {
             user: req.session.user,
             tempRoutine: req.session.tempRoutine,
@@ -95,6 +106,7 @@ router.post('/add-exercise', redirectLogin, (req, res) => {
         req.session.tempRoutine = { exercises: [] };
     }
     if (exercise_name) {
+        // Add exercise to tempRoutine array
         req.session.tempRoutine.exercises.push({
             exercise_id: exercise_id || 0,
             exercise_name: exercise_name,
@@ -112,6 +124,7 @@ router.post('/remove-exercise', redirectLogin, (req, res) => {
     req.body.index = req.sanitize(req.body.index);
     const index = parseInt(req.body.index);
     if (req.session.tempRoutine && req.session.tempRoutine.exercises) {
+        // Remove exercise at specified index
         req.session.tempRoutine.exercises.splice(index, 1);
     }
     req.session.save(() => {
@@ -126,16 +139,19 @@ router.post('/', redirectLogin, (req, res) => {
     const userId = req.session.user.id;
     const { routine_name, description } = req.body;
     const exercises = req.session.tempRoutine?.exercises || [];
+    // Use a transaction to save routine and exercises atomically
     db.getConnection((err, connection) => {
         if (err) {
             console.error('Connection error:', err);
             return res.status(500).send('Database connection error');
         }
+        // Connection handling
         connection.beginTransaction((err) => {
             if (err) {
                 connection.release();
                 return res.status(500).send('Transaction error');
             }
+            // Insert routine
             const routineQuery = 'INSERT INTO Routines (user_id, routine_name, description) VALUES (?, ?, ?)';
             connection.query(routineQuery, [userId, routine_name, description], (err, result) => {
                 if (err) {
@@ -146,6 +162,7 @@ router.post('/', redirectLogin, (req, res) => {
                 }
                 const routineId = result.insertId;
                 if (exercises.length === 0) {
+                    // No exercises to add, just commit routine
                     return connection.commit((err) => {
                         if (err) {
                             return connection.rollback(() => {
@@ -158,6 +175,7 @@ router.post('/', redirectLogin, (req, res) => {
                         req.session.save(() => res.redirect('/routines'));
                     });
                 }
+                // Prepare values for insert of exercises
                 const exerciseValues = exercises.map((ex, index) => [
                     routineId,
                     ex.exercise_id || 0,
@@ -166,6 +184,7 @@ router.post('/', redirectLogin, (req, res) => {
                     ex.reps || 10,
                     index
                 ]);
+                //Insert exercises
                 const exerciseQuery = 'INSERT INTO Routine_Exercises (routine_id, exercise_id, exercise_name, sets, reps, order_index) VALUES ?';
                 connection.query(exerciseQuery, [exerciseValues], (err) => {
                     if (err) {
@@ -174,6 +193,7 @@ router.post('/', redirectLogin, (req, res) => {
                             res.status(500).send('Error adding exercises');
                         });
                     }
+                    // Commit transaction after adding exercises if bothj succeed
                     connection.commit((err) => {
                         if (err) {
                             return connection.rollback(() => {
@@ -194,35 +214,40 @@ router.post('/', redirectLogin, (req, res) => {
 // GET /routines/json - View all routines with exercises as JSON
 router.get('/json', redirectLogin, (req, res) => {
     const userId = req.session.user.id;
-    
+
+    // Query all routines for the user
     const routinesQuery = 'SELECT * FROM Routines WHERE user_id = ? ORDER BY created_at DESC';
     db.query(routinesQuery, [userId], (err, routines) => {
         if (err) {
             console.error('Error fetching routines:', err);
             return res.status(500).json({ error: 'Error loading routines' });
         }
-        
+
         if (routines.length === 0) {
+            // No routines found
             return res.json({
                 success: true,
                 count: 0,
                 routines: []
             });
         }
-        
+
+        // Get all exercises for the found routines
         const routineIds = routines.map(r => r.routine_id);
         const exercisesQuery = 'SELECT * FROM Routine_Exercises WHERE routine_id IN (?) ORDER BY routine_id, order_index';
-        
+
         db.query(exercisesQuery, [routineIds], (err, exercises) => {
             if (err) {
                 console.error('Error fetching exercises:', err);
                 return res.status(500).json({ error: 'Error loading exercises' });
             }
-            
+
+            // Attach exercises to their respective routines
             routines.forEach(routine => {
                 routine.exercises = exercises.filter(ex => ex.routine_id === routine.routine_id);
             });
-            
+
+            // Return routines and exercises as JSON
             res.json({
                 success: true,
                 count: routines.length,
@@ -232,4 +257,30 @@ router.get('/json', redirectLogin, (req, res) => {
     });
 });
 
+// POST /routines/delete - Delete a routine
+router.post('/delete', redirectLogin, (req, res) => {
+    req.body.routine_id = req.sanitize(req.body.routine_id);
+    const routineId = req.body.routine_id;
+    const userId = req.session.user.id;
+
+    if (!routineId) {
+        // No routine specified
+        return res.redirect('/routines');
+    }
+
+    // Ensure the routine belongs to the user before deleting
+    const deleteQuery = 'DELETE FROM Routines WHERE routine_id = ? AND user_id = ?';
+
+    db.query(deleteQuery, [routineId, userId], (err, result) => {
+        if (err) {
+            console.error('Error deleting routine:', err);
+            return res.status(500).send('Error deleting routine');
+        }
+
+        console.log(`Routine ${routineId} deleted for user ${userId}`);
+        res.redirect('/routines');
+    });
+});
+
+// Export the router
 module.exports = router;

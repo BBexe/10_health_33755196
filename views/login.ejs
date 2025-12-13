@@ -1,18 +1,32 @@
 <%- include('header') %>
-    <h1>Login</h1>
-    <% if (typeof error !== 'undefined' && error) { %>
-        <p style="color: red;"><%= error %></p>
-    <% } %>
-    <form action="/users/login" method="POST">
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit">Login</button>
-    </form>
-    <p>Don't have an account? <a href="/users/register">Register</a></p>
-<%- include('footer') %>
+    <link rel="stylesheet" href="/css/auth.css">
+
+    <!-- Login form container -->
+    <div class="auth-container">
+        <h1>Login</h1>
+        <!-- Error message display -->
+        <% if (typeof error !=='undefined' && error) { %>
+            <p class="error-message">
+                <%= error %>
+            </p>
+            <% } %>
+                <!-- Login form -->
+                <form action="/users/login" method="POST" class="auth-form">
+                    <!-- Username input -->
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <!-- Password input -->
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Login</button>
+                </form>
+                <!-- Footer with registration link -->
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="/users/register">Register</a></p>
+                </div>
+    </div>
+    <%- include('footer') %>
