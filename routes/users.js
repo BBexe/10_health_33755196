@@ -40,7 +40,7 @@ router.post('/register', [
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // 3. Insert into Database
-        const sql = 'INSERT INTO Users (username, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)';
+        const sql = 'INSERT INTO users (username, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)';
 
         db.query(sql, [username, firstname, lastname, email, hashedPassword], (err, result) => {
             if (err) {
@@ -95,7 +95,7 @@ router.post('/login', [
     const { username, password } = req.body;
 
     // 2. Find user in Database
-    const sql = 'SELECT * FROM Users WHERE username = ?';
+    const sql = 'SELECT * FROM users WHERE username = ?';
     db.query(sql, [username], (err, results) => {
         if (err) {
             console.error('Database error during login:', err);

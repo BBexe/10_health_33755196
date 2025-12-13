@@ -9,7 +9,7 @@ function getNextWeekDates() {
     const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const dayMap = { 'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6 };
     const today = new Date();
-    const currentDay = today.getDay(); 
+    const currentDay = today.getDay();
 
     dayNames.forEach(day => {
         const targetDay = dayMap[day];
@@ -58,7 +58,7 @@ router.get('/', (req, res) => {
         // Fetch booking counts for the displayed week
         const bookingQuery = `
             SELECT schedule_id, booking_date, COUNT(*) as count 
-            FROM Bookings 
+            FROM bookings 
             WHERE booking_date IN (?) AND status = 'confirmed' 
             GROUP BY schedule_id, booking_date
         `;
@@ -109,10 +109,10 @@ router.get('/about', (req, res) => {
 router.get('/social', redirectLogin, (req, res) => {
     const sql = `
         SELECT u.username, a.name as activity_name, b.booking_date, s.start_time, s.day
-        FROM Bookings b
-        JOIN Users u ON b.user_id = u.id
-        JOIN Schedule s ON b.schedule_id = s.id
-        JOIN Activities a ON s.activity_id = a.id
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        JOIN schedule s ON b.schedule_id = s.id
+        JOIN activities a ON s.activity_id = a.id
         WHERE b.status = 'confirmed'
         ORDER BY b.booking_date DESC, s.start_time ASC
     `;
@@ -132,7 +132,7 @@ router.get('/dashboard', redirectLogin, (req, res) => {
     const userId = req.session.user.id;
 
     // 1. Fetch latest user details (balance, tier) from DB
-    const userSql = "SELECT * FROM Users WHERE id = ?";
+    const userSql = "SELECT * FROM users WHERE id = ?";
 
     db.query(userSql, [userId], (err, userResults) => {
         if (err || userResults.length === 0) {
@@ -165,9 +165,9 @@ router.get('/dashboard', redirectLogin, (req, res) => {
 function renderDashboard(req, res, currentUser) {
     const sql = `
         SELECT b.id, a.name, s.day, s.start_time, b.status 
-        FROM Bookings b
-        JOIN Schedule s ON b.schedule_id = s.id
-        JOIN Activities a ON s.activity_id = a.id
+        FROM bookings b
+        JOIN schedule s ON b.schedule_id = s.id
+        JOIN activities a ON s.activity_id = a.id
         WHERE b.user_id = ?
         ORDER BY b.booking_date DESC, s.start_time ASC
     `;

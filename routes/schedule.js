@@ -45,8 +45,8 @@ router.post('/book', redirectLogin, (req, res) => {
     // 2. Fetch Schedule Details
     const sql = `
         SELECT S.id, S.capacity, S.day, A.cost, A.tier_required, A.name as activity_name
-        FROM Schedule S
-        JOIN Activities A ON S.activity_id = A.id
+        FROM schedule S
+        JOIN activities A ON S.activity_id = A.id
         WHERE S.id = ?
     `;
 
@@ -70,7 +70,7 @@ router.post('/book', redirectLogin, (req, res) => {
         // 3. Run Validation Checks (Pre-Transaction)
 
         // Check A: Current capacity
-        const countSql = "SELECT COUNT(*) as count FROM Bookings WHERE schedule_id = ? AND booking_date = ? AND status = 'confirmed'";
+        const countSql = "SELECT COUNT(*) as count FROM bookings WHERE schedule_id = ? AND booking_date = ? AND status = 'confirmed'";
         db.query(countSql, [scheduleId, bookingDate], (err, countResult) => {
             if (err) {
                 console.error(`[BOOKING] DB Error checking capacity for Sched ${scheduleId}:`, err);
@@ -80,7 +80,7 @@ router.post('/book', redirectLogin, (req, res) => {
             const currentBookings = countResult[0].count;
 
             // Check B: User already booked?
-            const checkSql = 'SELECT * FROM Bookings WHERE user_id = ? AND schedule_id = ? AND booking_date = ?';
+            const checkSql = 'SELECT * FROM bookings WHERE user_id = ? AND schedule_id = ? AND booking_date = ?';
             db.query(checkSql, [userId, scheduleId, bookingDate], (err, existingBookings) => {
                 if (err) {
                     console.error(`[BOOKING] DB Error checking existing bookings User ${userId}:`, err);
@@ -129,7 +129,7 @@ router.post('/book', redirectLogin, (req, res) => {
                         }
 
                         // Step 4a: Insert Booking
-                        const insertBooking = 'INSERT INTO Bookings (user_id, schedule_id, status, booking_date) VALUES (?, ?, "confirmed", ?)';
+                        const insertBooking = 'INSERT INTO bookings (user_id, schedule_id, status, booking_date) VALUES (?, ?, "confirmed", ?)';
                         connection.query(insertBooking, [userId, scheduleId, bookingDate], (err) => {
                             if (err) {
                                 // Rollback if booking insert fails
@@ -141,7 +141,7 @@ router.post('/book', redirectLogin, (req, res) => {
                             }
 
                             // Step 4b: Deduct Tokens
-                            const updateTokens = 'UPDATE Users SET token_balance = token_balance - ? WHERE id = ?';
+                            const updateTokens = 'UPDATE users SET token_balance = token_balance - ? WHERE id = ?';
                             connection.query(updateTokens, [classInfo.cost, userId], (err) => {
                                 if (err) {
                                     // Rollback if token deduction fails
@@ -207,9 +207,9 @@ router.post('/cancel', redirectLogin, (req, res) => {
             // 2. Fetch Booking & Cost
             const getBookingSql = `
                 SELECT b.id, a.cost, a.name 
-                FROM Bookings b
-                JOIN Schedule s ON b.schedule_id = s.id
-                JOIN Activities a ON s.activity_id = a.id
+                FROM bookings b
+                JOIN schedule s ON b.schedule_id = s.id
+                JOIN activities a ON s.activity_id = a.id
                 WHERE b.id = ? AND b.user_id = ?
             `;
 
@@ -227,7 +227,7 @@ router.post('/cancel', redirectLogin, (req, res) => {
                 console.log(`[CANCEL] Found Booking: ${results[0].name} (Refund Amount: ${cost})`);
 
                 // 3. Delete Booking
-                const deleteSql = 'DELETE FROM Bookings WHERE id = ?';
+                const deleteSql = 'DELETE FROM bookings WHERE id = ?';
                 connection.query(deleteSql, [booking_id], (err) => {
                     if (err) {
                         return connection.rollback(() => {
@@ -238,7 +238,7 @@ router.post('/cancel', redirectLogin, (req, res) => {
                     }
 
                     // 4. Refund Tokens
-                    const refundSql = 'UPDATE Users SET token_balance = token_balance + ? WHERE id = ?';
+                    const refundSql = 'UPDATE users SET token_balance = token_balance + ? WHERE id = ?';
                     connection.query(refundSql, [cost, userId], (err) => {
                         if (err) {
                             // Rollback if refund fails

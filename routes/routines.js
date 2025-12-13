@@ -14,7 +14,7 @@ router.get('/', redirectLogin, (req, res) => {
     const userId = req.session.user.id;
 
     // Query all routines for the user
-    const routinesQuery = 'SELECT * FROM Routines WHERE user_id = ? ORDER BY created_at DESC';
+    const routinesQuery = 'SELECT * FROM routines WHERE user_id = ? ORDER BY created_at DESC';
     db.query(routinesQuery, [userId], (err, routines) => {
         if (err) {
             console.error('Error fetching routines:', err);
@@ -31,7 +31,7 @@ router.get('/', redirectLogin, (req, res) => {
 
         // Get all exercises for the found routines
         const routineIds = routines.map(r => r.routine_id);
-        const exercisesQuery = 'SELECT * FROM Routine_Exercises WHERE routine_id IN (?) ORDER BY routine_id, order_index';
+        const exercisesQuery = 'SELECT * FROM routine_exercises WHERE routine_id IN (?) ORDER BY routine_id, order_index';
 
         db.query(exercisesQuery, [routineIds], (err, exercises) => {
             if (err) {
@@ -152,7 +152,7 @@ router.post('/', redirectLogin, (req, res) => {
                 return res.status(500).send('Transaction error');
             }
             // Insert routine
-            const routineQuery = 'INSERT INTO Routines (user_id, routine_name, description) VALUES (?, ?, ?)';
+            const routineQuery = 'INSERT INTO routines (user_id, routine_name, description) VALUES (?, ?, ?)';
             connection.query(routineQuery, [userId, routine_name, description], (err, result) => {
                 if (err) {
                     return connection.rollback(() => {
@@ -185,7 +185,7 @@ router.post('/', redirectLogin, (req, res) => {
                     index
                 ]);
                 //Insert exercises
-                const exerciseQuery = 'INSERT INTO Routine_Exercises (routine_id, exercise_id, exercise_name, sets, reps, order_index) VALUES ?';
+                const exerciseQuery = 'INSERT INTO routine_exercises (routine_id, exercise_id, exercise_name, sets, reps, order_index) VALUES ?';
                 connection.query(exerciseQuery, [exerciseValues], (err) => {
                     if (err) {
                         return connection.rollback(() => {
@@ -216,7 +216,7 @@ router.get('/json', redirectLogin, (req, res) => {
     const userId = req.session.user.id;
 
     // Query all routines for the user
-    const routinesQuery = 'SELECT * FROM Routines WHERE user_id = ? ORDER BY created_at DESC';
+    const routinesQuery = 'SELECT * FROM routines WHERE user_id = ? ORDER BY created_at DESC';
     db.query(routinesQuery, [userId], (err, routines) => {
         if (err) {
             console.error('Error fetching routines:', err);
@@ -234,7 +234,7 @@ router.get('/json', redirectLogin, (req, res) => {
 
         // Get all exercises for the found routines
         const routineIds = routines.map(r => r.routine_id);
-        const exercisesQuery = 'SELECT * FROM Routine_Exercises WHERE routine_id IN (?) ORDER BY routine_id, order_index';
+        const exercisesQuery = 'SELECT * FROM routine_exercises WHERE routine_id IN (?) ORDER BY routine_id, order_index';
 
         db.query(exercisesQuery, [routineIds], (err, exercises) => {
             if (err) {
@@ -269,7 +269,7 @@ router.post('/delete', redirectLogin, (req, res) => {
     }
 
     // Ensure the routine belongs to the user before deleting
-    const deleteQuery = 'DELETE FROM Routines WHERE routine_id = ? AND user_id = ?';
+    const deleteQuery = 'DELETE FROM routines WHERE routine_id = ? AND user_id = ?';
 
     db.query(deleteQuery, [routineId, userId], (err, result) => {
         if (err) {
