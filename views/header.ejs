@@ -23,12 +23,12 @@
         <div class="nav-content">
             <!-- Main navigation links -->
             <div class="nav-links">
-                <a href="/"> Home</a>
-                <a href="/about"> About</a>
+                <a href="<%= url('/') %>"> Home</a>
+                <a href="<%= url('/about') %>"> About</a>
                 <% if (typeof user !=='undefined' && user) { %>
-                    <a href="/dashboard"> Dashboard</a>
-                    <a href="/social"> Social</a>
-                    <a href="/routines"> Routines</a>
+                    <a href="<%= url('/dashboard') %>"> Dashboard</a>
+                    <a href="<%= url('/social') %>"> Social</a>
+                    <a href="<%= url('/routines') %>"> Routines</a>
                     <% } %>
             </div>
             <!-- User/account navigation links -->
@@ -38,10 +38,10 @@
                         <span class="material-symbols-outlined">monetization_on</span>
                         <%= user.token_balance || 0 %>
                     </span>
-                    <a href="/users/logout"> Logout (<%= user.username %>)</a>
+                    <a href="<%= url('/users/logout') %>"> Logout (<%= user.username %>)</a>
                     <% } else { %>
-                        <a href="/users/login"> Login</a>
-                        <a href="/users/register"> Register</a>
+                        <a href="<%= url('/users/login') %>"> Login</a>
+                        <a href="<%= url('/users/register') %>"> Register</a>
                         <% } %>
             </div>
         </div>

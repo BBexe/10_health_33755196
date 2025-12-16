@@ -136,7 +136,7 @@ router.post('/login', [
                             console.error('Session save error:', err);
                             res.render('login', { title: 'Login', error: 'Error creating session.' });
                         }
-                        res.redirect('../dashboard');
+                        res.redirectBase('/dashboard');
                     });
                 } else {
                     // Password didn't match
@@ -156,7 +156,7 @@ router.post('/login', [
 router.get('/logout', redirectLogin, (req, res) => {
     req.session.destroy((err) => {
         if (err) console.error('Logout error:', err);
-        res.redirect('login');
+        res.redirectBase('/users/login');
     });
 });
 

@@ -6,14 +6,14 @@
         <!-- Page title and create button -->
         <div class="page-title">
             <h1>My Routines</h1>
-            <a href="/routines/new" class="btn-primary">Create New Routine</a>
+            <a href="<%= url('/routines/new') %>" class="btn-primary">Create New Routine</a>
         </div>
 
         <% if (routines.length===0) { %>
             <!-- Empty state for no routines -->
             <div class="empty-state">
                 <p>You haven't created any routines yet.</p>
-                <a href="/routines/new" class="btn-primary">Create Your First Routine</a>
+                <a href="<%= url('/routines/new') %>" class="btn-primary">Create Your First Routine</a>
             </div>
 
             <% } else { %>
@@ -53,8 +53,7 @@
 
                                     <!-- Routine meta info and delete button -->
                                     <div class="routine-meta">
-                                        <form action="/routines/delete" method="POST"
-                                            id="deleteForm-<%= routine.routine_id %>">
+                                        <form action="delete" method="POST" id="deleteForm-<%= routine.routine_id %>">
                                             <input type="hidden" name="routine_id" value="<%= routine.routine_id %>">
                                             <button type="button" class="btn-danger"
                                                 onclick="confirmDelete('<%= routine.routine_id %>')">Delete</button>
@@ -63,31 +62,31 @@
                                         <small>Created: <%= new Date(routine.created_at).toLocaleDateString() %></small>
                                     </div>
                         </div>
+
+                        <% }) %>
                 </div>
-                <% }) %>
+                <% } %>
+
     </div>
-    <% } %>
-
-        </div>
 
 
-        <%- include('footer') %>
-
-            <!-- Script for routine delete confirmation -->
-            <script>
-                function confirmDelete(routineId) {
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: "You won't be able to revert this!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Yes, delete it!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            document.getElementById('deleteForm-' + routineId).submit();
-                        }
-                    })
+    <!-- Script for routine delete confirmation -->
+    <script>
+        function confirmDelete(routineId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('deleteForm-' + routineId).submit();
                 }
-            </script>
+            })
+        }
+    </script>
+
+    <%- include('footer') %>

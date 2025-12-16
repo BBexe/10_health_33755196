@@ -12,14 +12,14 @@ router.use(expressSanitizer());
 // HELPER FUNCTIONS
 
 // Helper to handle alerts and redirects using Session Flash messages
-const flashAndRedirect = (req, res, type, message, redirectUrl = '../') => {
+const flashAndRedirect = (req, res, type, message, redirectUrl = '/') => {
     // Store message in session
     req.session.flash = { type, message };
 
     // Explicitly save session before redirecting to ensure message isn't lost
     req.session.save((err) => {
         if (err) console.error('Error saving session during redirect:', err);
-        res.redirect(redirectUrl);
+        res.redirectBase(redirectUrl);
     });
 };
 
@@ -169,7 +169,7 @@ router.post('/book', redirectLogin, (req, res) => {
                                     req.session.user.token_balance -= classInfo.cost;
                                     console.log(`[BOOKING] Success: User ${userId} booked Sched ${scheduleId}. New Balance: ${req.session.user.token_balance}`);
 
-                                    flashAndRedirect(req, res, 'success', 'Class booked successfully!', '../dashboard');
+                                    flashAndRedirect(req, res, 'success', 'Class booked successfully!', '/dashboard');
                                 });
                             });
                         });
@@ -266,7 +266,7 @@ router.post('/cancel', redirectLogin, (req, res) => {
                             req.session.user.token_balance += cost;
                             console.log(`[CANCEL] Success: Refunded ${cost} to User ${userId}`);
 
-                            flashAndRedirect(req, res, 'success', 'Booking cancelled and tokens refunded.', '../dashboard');
+                            flashAndRedirect(req, res, 'success', 'Booking cancelled and tokens refunded.', '/dashboard');
                         });
                     });
                 });

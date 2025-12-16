@@ -73,7 +73,7 @@
                                 </span> / <%= item.capacity %>
                             </td>
                             <td>
-                                <form class="booking-form" action="/schedule/book" method="POST">
+                                <form class="booking-form" action="<%= url('/schedule/book') %>" method="POST">
                                     <input type="hidden" name="schedule_id" value="<%= item.id %>">
                                     <input type="hidden" name="booking_date" value="<%= weekDates[item.day] %>">
                                     <button type="submit" class="book-btn">Book Now</button>

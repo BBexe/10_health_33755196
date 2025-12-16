@@ -78,7 +78,7 @@
                                             </span>
                                         </td>
                                         <td style="text-align: right;">
-                                            <form action="/schedule/cancel" method="POST"
+                                            <form action="<%= url('/schedule/cancel') %>" method="POST"
                                                 id="cancelForm-<%= booking.id %>">
                                                 <input type="hidden" name="booking_id" value="<%= booking.id %>">
                                                 <button type="button" class="cancel-btn"

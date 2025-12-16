@@ -11,6 +11,10 @@ router.use(expressSanitizer());
 
 // GET /routines - View all routines
 router.get('/', redirectLogin, (req, res) => {
+    // Ensure trailing slash for relative form actions to work
+    if (req.originalUrl && !req.originalUrl.split('?')[0].endsWith('/')) {
+        return res.redirectBase('/routines/');
+    }
     const userId = req.session.user.id;
 
     // Query all routines for the user
@@ -109,7 +113,7 @@ router.post('/search', redirectLogin, async (req, res) => {
         });
     } catch (err) {
         console.error('Search error:', err);
-        res.redirect('/routines/new');
+        res.redirectBase('/routines/new');
     }
 });
 
@@ -133,7 +137,7 @@ router.post('/add-exercise', redirectLogin, (req, res) => {
         });
     }
     req.session.save(() => {
-        res.redirect('/routines/new');
+        res.redirectBase('/routines/new');
     });
 });
 
@@ -146,7 +150,7 @@ router.post('/remove-exercise', redirectLogin, (req, res) => {
         req.session.tempRoutine.exercises.splice(index, 1);
     }
     req.session.save(() => {
-        res.redirect('/routines/new');
+        res.redirectBase('/routines/new');
     });
 });
 
@@ -190,7 +194,9 @@ router.post('/', redirectLogin, (req, res) => {
                         }
                         connection.release();
                         delete req.session.tempRoutine;
-                        req.session.save(() => res.redirect('/routines'));
+                        req.session.save(() => {
+                            res.redirectBase('/routines');
+                        });
                     });
                 }
                 // Prepare values for insert of exercises
@@ -221,7 +227,9 @@ router.post('/', redirectLogin, (req, res) => {
                         }
                         connection.release();
                         delete req.session.tempRoutine;
-                        req.session.save(() => res.redirect('/routines'));
+                        req.session.save(() => {
+                            res.redirectBase('/routines');
+                        });
                     });
                 });
             });
@@ -283,7 +291,7 @@ router.post('/delete', redirectLogin, (req, res) => {
 
     if (!routineId) {
         // No routine specified
-        return res.redirect('/routines');
+        return res.redirectBase('/routines');
     }
 
     // Ensure the routine belongs to the user before deleting
@@ -296,7 +304,7 @@ router.post('/delete', redirectLogin, (req, res) => {
         }
 
         console.log(`Routine ${routineId} deleted for user ${userId}`);
-        res.redirect('/routines');
+        res.redirectBase('/routines');
     });
 });
 
