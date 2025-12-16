@@ -1,7 +1,7 @@
 // Import required modules
 const express = require('express');
 const app = express();
-const path = require('path'); 
+const path = require('path');
 const dotenv = require('dotenv'); // For environment variables
 const session = require('express-session'); // Session middleware
 const MySQLStore = require('express-mysql-session')(session); // MySQL session store
@@ -44,7 +44,7 @@ app.use(session({
     resave: false, // Don't save session if unmodified
     saveUninitialized: false, // Only create session if user logs in/data is modified
     httpOnly: true, // Prevent client-side JS from accessing the cookie
-    secure: true, // Ensure cookie is only sent over HTTPS
+    secure: false, // Ensure cookie is only sent over HTTPS (False for Intranet HTTP)
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 // 1 day in milliseconds
     }
@@ -53,6 +53,23 @@ app.use(session({
 
 // Middleware to make user and flash messages available in all views
 app.use((req, res, next) => {
+    const basePath = process.env.HEALTH_BASE_PATH || '';
+
+    // Helper for Views: Generates absolute URL with base path
+    // Usage: <a href="<%= url('/routines') %>">
+    res.locals.url = (path) => {
+        const cleanPath = path.startsWith('/') ? path : '/' + path;
+        return basePath + cleanPath;
+    };
+
+    // Helper for Controllers: Redirects relative to base path
+    // Usage: res.redirectBase('/dashboard');
+    res.redirectBase = (path) => {
+        const cleanPath = path.startsWith('/') ? path : '/' + path;
+        res.redirect(basePath + cleanPath);
+    };
+
+    res.locals.baseUrl = basePath; // Keep for backward compatibility
     res.locals.user = req.session.user; // Current logged-in user
 
     // Pass flash message to view
