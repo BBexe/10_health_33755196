@@ -71,8 +71,23 @@ router.get('/new', redirectLogin, (req, res) => {
 // POST /routines/search - Search exercises
 router.post('/search', redirectLogin, async (req, res) => {
     req.body.query = req.sanitize(req.body.query);
+    req.body.routine_name = req.sanitize(req.body.routine_name);
+    req.body.description = req.sanitize(req.body.description);
+
+    console.log('[SEARCH] Request body:', req.body);
+
     let query = req.body.query || '';
     query = query.trim();
+
+    // Save routine name and description to session so they persost
+    if (!req.session.tempRoutine) {
+        req.session.tempRoutine = { exercises: [] };
+    }
+    req.session.tempRoutine.routine_name = req.body.routine_name || '';
+    req.session.tempRoutine.description = req.body.description || '';
+
+    console.log('[SEARCH] Saved to session:', req.session.tempRoutine);
+
     if (query.length < 2) {
         // Require at least 2 characters to search
         return res.redirect('/routines/new');
@@ -83,6 +98,9 @@ router.post('/search', redirectLogin, async (req, res) => {
             params: { term: query, language: 2 }
         });
         const searchResults = response.data.suggestions || [];
+
+        console.log('[SEARCH] Rendering with tempRoutine:', req.session.tempRoutine);
+
         // Render form with search results
         res.render('create', {
             user: req.session.user,
