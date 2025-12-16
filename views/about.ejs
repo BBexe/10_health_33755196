@@ -30,7 +30,11 @@
                 <h3>User Dashboard</h3>
                 <p>Track your token balance, view upcoming classes, and manage your membership status all in one place.
                 </p>
-                <a href="/dashboard" class="btn-feature">Go to Dashboard</a>
+                <% if (user) { %>
+                    <a href="/dashboard" class="btn-feature">Go to Dashboard</a>
+                    <% } else { %>
+                        <a href="/users/login" class="btn-feature">Login to Access</a>
+                        <% } %>
             </div>
 
             <!-- Feature 3: Routines -->
@@ -39,7 +43,11 @@
                 <h3>Custom Routines</h3>
                 <p>Create personalized workout routines, add exercises, and track your sets and reps to ensure
                     progressive overload.</p>
-                <a href="/routines" class="btn-feature">My Routines</a>
+                <% if (user) { %>
+                    <a href="/routines" class="btn-feature">My Routines</a>
+                    <% } else { %>
+                        <a href="/users/login" class="btn-feature">Login to Access</a>
+                        <% } %>
             </div>
 
             <!-- Feature 4: Community -->
@@ -47,7 +55,11 @@
                 <div class="feature-icon"><span class="material-symbols-outlined">groups</span></div>
                 <h3>Community</h3>
                 <p>See what others are booking and stay motivated by being part of our active fitness community.</p>
-                <a href="/social" class="btn-feature">Join Community</a>
+                <% if (user) { %>
+                    <a href="/social" class="btn-feature">Join Community</a>
+                    <% } else { %>
+                        <a href="/users/login" class="btn-feature">Login to Access</a>
+                        <% } %>
             </div>
         </div>
     </div>

@@ -100,23 +100,24 @@
 
     </div>
 
-    <%- include('footer') %>
 
-        <!-- Script for booking cancellation confirmation -->
-        <script>
-            function confirmCancel(bookingId) {
-                Swal.fire({
-                    title: 'Cancel Booking?',
-                    text: "Tokens will be refunded to your account.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, cancel it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('cancelForm-' + bookingId).submit();
-                    }
-                })
-            }
-        </script>
+
+    <!-- Script for booking cancellation confirmation -->
+    <script>
+        function confirmCancel(bookingId) {
+            Swal.fire({
+                title: 'Cancel Booking?',
+                text: "Tokens will be refunded to your account.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('cancelForm-' + bookingId).submit();
+                }
+            })
+        }
+    </script>
+    <%- include('footer') %>
