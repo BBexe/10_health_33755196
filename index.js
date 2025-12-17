@@ -35,6 +35,10 @@ app.use(express.urlencoded({ extended: true }));
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 
+// Express-sanitizer middleware (must be after body parsers)
+const expressSanitizer = require('express-sanitizer');
+app.use(expressSanitizer());
+
 // Session Middleware
 // Configure session handling with MySQL store
 app.use(session({
@@ -51,25 +55,28 @@ app.use(session({
 }));
 
 
-// Middleware to make user and flash messages available in all views
+// Middleware for Base Path Helpers (Must run before routes)
 app.use((req, res, next) => {
     const basePath = process.env.HEALTH_BASE_PATH || '';
 
     // Helper for Views: Generates absolute URL with base path
-    // Usage: <a href="<%= url('/routines') %>">
     res.locals.url = (path) => {
         const cleanPath = path.startsWith('/') ? path : '/' + path;
         return basePath + cleanPath;
     };
 
     // Helper for Controllers: Redirects relative to base path
-    // Usage: res.redirectBase('/dashboard');
     res.redirectBase = (path) => {
         const cleanPath = path.startsWith('/') ? path : '/' + path;
         res.redirect(basePath + cleanPath);
     };
 
-    res.locals.baseUrl = basePath; // Keep for backward compatibility
+    res.locals.baseUrl = basePath; // Component compatibility
+    next();
+});
+
+// Middleware for User Session and Flash Messages
+app.use((req, res, next) => {
     res.locals.user = req.session.user; // Current logged-in user
 
     // Pass flash message to view
@@ -83,6 +90,7 @@ app.use((req, res, next) => {
         next();
     });
 });
+
 
 
 

@@ -22,7 +22,7 @@
             <!-- Form action buttons (Save/Cancel) -->
             <div class="form-actions">
                 <button type="submit">Save Routine</button>
-                <a href="<%= url('/routines') %>" class="btn-danger">Cancel</a>
+                <a href="<%= url('/routines/cancel-creation') %>" class="btn-danger" id="cancelBtn">Cancel</a>
             </div>
         </form>
 
@@ -48,6 +48,8 @@
                             <!-- Form to remove an exercise from the routine -->
                             <form action="remove-exercise" method="POST" style="display: inline;">
                                 <input type="hidden" name="index" value="<%= index %>">
+                                <input type="hidden" name="query"
+                                    value="<%= typeof currentQuery !== 'undefined' ? currentQuery : '' %>">
                                 <button type="submit" class="btn-remove">Remove</button>
                             </form>
                         </div>
@@ -66,9 +68,16 @@
                             <div class="form-group">
                                 <label>Search Exercise:</label>
                                 <input type="text" name="query" placeholder="Type to search exercises..."
-                                    autocomplete="off" required>
+                                    autocomplete="off" required
+                                    value="<%= typeof currentQuery !== 'undefined' ? currentQuery : '' %>">
                             </div>
-                            <button type="submit">Search</button>
+                            <div class="form-actions" style="margin-top: 10px;">
+                                <button type="submit">Search</button>
+                                <% if (typeof currentQuery !=='undefined' && currentQuery) { %>
+                                    <a href="<%= url('/routines/new') %>" class="clear-search"
+                                        style="margin-left: 10px;">Clear</a>
+                                    <% } %>
+                            </div>
                         </form>
 
                         <% if (searchResults && searchResults.length> 0) { %>
@@ -80,6 +89,8 @@
                                     <form action="add-exercise" method="POST" class="add-exercise-form">
                                         <input type="hidden" name="exercise_id" value="<%= result.data.id %>">
                                         <input type="hidden" name="exercise_name" value="<%= result.value %>">
+                                        <!-- Pass query to persist search context -->
+                                        <input type="hidden" name="query" value="<%= currentQuery %>">
 
                                         <!-- Single search result item -->
                                         <div class="result-item">
@@ -102,3 +113,54 @@
     </div>
 
     <%- include('footer') %>
+
+        <script>
+            // Persistence Logic: Keep Name/Description AND Scroll Position
+            document.addEventListener('DOMContentLoaded', () => {
+                const nameInput = document.querySelector('input[name="routine_name"]');
+                const descInput = document.querySelector('textarea[name="description"]');
+                const mainForm = document.querySelector('form[action="./"]');
+
+                // Restore Scroll Position
+                const scrollPos = sessionStorage.getItem('scrollPos');
+                if (scrollPos) {
+                    window.scrollTo(0, parseInt(scrollPos));
+                    sessionStorage.removeItem('scrollPos'); // Clear after restoring
+                }
+
+                // Restore Inputs
+                if (sessionStorage.getItem('temp_routine_name')) {
+                    nameInput.value = sessionStorage.getItem('temp_routine_name');
+                }
+                if (sessionStorage.getItem('temp_routine_desc')) {
+                    descInput.value = sessionStorage.getItem('temp_routine_desc');
+                }
+
+                // Save Inputson change
+                nameInput.addEventListener('input', () => {
+                    sessionStorage.setItem('temp_routine_name', nameInput.value);
+                });
+                descInput.addEventListener('input', () => {
+                    sessionStorage.setItem('temp_routine_desc', descInput.value);
+                });
+
+                // Save Scroll Position before unload (reload)
+                window.addEventListener('beforeunload', () => {
+                    sessionStorage.setItem('scrollPos', window.scrollY);
+                });
+
+                // Clear Everything on successful Save (Submit Main Form)
+                mainForm.addEventListener('submit', () => {
+                    sessionStorage.removeItem('temp_routine_name');
+                    sessionStorage.removeItem('temp_routine_desc');
+                    sessionStorage.removeItem('scrollPos');
+                });
+
+                // Clear Everything on Cancel
+                document.getElementById('cancelBtn').addEventListener('click', () => {
+                    sessionStorage.removeItem('temp_routine_name');
+                    sessionStorage.removeItem('temp_routine_desc');
+                    sessionStorage.removeItem('scrollPos');
+                });
+            });
+        </script>

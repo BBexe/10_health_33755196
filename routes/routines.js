@@ -57,64 +57,64 @@ router.get('/', redirectLogin, (req, res) => {
     });
 });
 
-// GET /routines/new - Create routine form
-router.get('/new', redirectLogin, (req, res) => {
-    // Initialize tempRoutine in session if not present
-    if (!req.session.tempRoutine) {
-        req.session.tempRoutine = { exercises: [] };
+// GET /routines/cancel-creation - Clear temp routine and redirect
+router.get('/cancel-creation', redirectLogin, (req, res) => {
+    if (req.session.tempRoutine) {
+        delete req.session.tempRoutine;
     }
-
-    // Render the create routine form
-    res.render('create', {
-        user: req.session.user,
-        tempRoutine: req.session.tempRoutine,
-        searchResults: null
+    req.session.save(() => {
+        res.redirectBase('/routines');
     });
 });
 
+// GET /routines/new - Create routine form
+router.get('/new', redirectLogin, async (req, res) => {
+    try {
+        if (!req.session.tempRoutine) {
+            req.session.tempRoutine = { exercises: [] };
+        }
+
+        const searchQuery = req.query.query;
+        let searchResults = [];
+
+        if (searchQuery) {
+            try {
+                const response = await axios.get('https://wger.de/api/v2/exercise/search/', {
+                    params: { term: searchQuery, language: 2 }
+                });
+                searchResults = response.data.suggestions || [];
+            } catch (apiErr) {
+                console.error('WGER API Error:', apiErr);
+            }
+        }
+
+        res.render('create', {
+            user: req.session.user,
+            tempRoutine: req.session.tempRoutine,
+            searchResults: searchResults,
+            currentQuery: searchQuery || ''
+        });
+    } catch (err) {
+        console.error('Error rendering create page:', err);
+        res.status(500).send('Error loading page');
+    }
+});
+
 // POST /routines/search - Search exercises
-router.post('/search', redirectLogin, async (req, res) => {
-    req.body.query = req.sanitize(req.body.query);
+router.post('/search', redirectLogin, (req, res) => {
     req.body.routine_name = req.sanitize(req.body.routine_name);
     req.body.description = req.sanitize(req.body.description);
 
-    console.log('[SEARCH] Request body:', req.body);
-
-    let query = req.body.query || '';
-    query = query.trim();
-
-    // Save routine name and description to session so they persost
+    // Save routine name and description to session
     if (!req.session.tempRoutine) {
         req.session.tempRoutine = { exercises: [] };
     }
     req.session.tempRoutine.routine_name = req.body.routine_name || '';
     req.session.tempRoutine.description = req.body.description || '';
 
-    console.log('[SEARCH] Saved to session:', req.session.tempRoutine);
-
-    if (query.length < 2) {
-        // Require at least 2 characters to search
-        return res.redirect('/routines/new');
-    }
-    try {
-        // Call WGER API to search for exercises
-        const response = await axios.get('https://wger.de/api/v2/exercise/search/', {
-            params: { term: query, language: 2 }
-        });
-        const searchResults = response.data.suggestions || [];
-
-        console.log('[SEARCH] Rendering with tempRoutine:', req.session.tempRoutine);
-
-        // Render form with search results
-        res.render('create', {
-            user: req.session.user,
-            tempRoutine: req.session.tempRoutine,
-            searchResults: searchResults
-        });
-    } catch (err) {
-        console.error('Search error:', err);
-        res.redirectBase('/routines/new');
-    }
+    const query = req.sanitize(req.body.query);
+    // Redirect to GET with query param to persist search state
+    res.redirectBase(`/routines/new?query=${encodeURIComponent(query)}`);
 });
 
 // POST /routines/add-exercise - Add exercise to temp routine
@@ -123,7 +123,9 @@ router.post('/add-exercise', redirectLogin, (req, res) => {
     req.body.exercise_name = req.sanitize(req.body.exercise_name);
     req.body.sets = req.sanitize(req.body.sets);
     req.body.reps = req.sanitize(req.body.reps);
-    const { exercise_id, exercise_name, sets, reps } = req.body;
+    req.body.query = req.sanitize(req.body.query); // Get query to persist it
+
+    const { exercise_id, exercise_name, sets, reps, query } = req.body;
     if (!req.session.tempRoutine) {
         req.session.tempRoutine = { exercises: [] };
     }
@@ -137,20 +139,25 @@ router.post('/add-exercise', redirectLogin, (req, res) => {
         });
     }
     req.session.save(() => {
-        res.redirectBase('/routines/new');
+        const redirectUrl = query ? `/routines/new?query=${encodeURIComponent(query)}` : '/routines/new';
+        res.redirectBase(redirectUrl);
     });
 });
 
 // POST /routines/remove-exercise - Remove exercise from temp
 router.post('/remove-exercise', redirectLogin, (req, res) => {
     req.body.index = req.sanitize(req.body.index);
+    req.body.query = req.sanitize(req.body.query); // Get query to persist it
     const index = parseInt(req.body.index);
+    const query = req.body.query;
+
     if (req.session.tempRoutine && req.session.tempRoutine.exercises) {
         // Remove exercise at specified index
         req.session.tempRoutine.exercises.splice(index, 1);
     }
     req.session.save(() => {
-        res.redirectBase('/routines/new');
+        const redirectUrl = query ? `/routines/new?query=${encodeURIComponent(query)}` : '/routines/new';
+        res.redirectBase(redirectUrl);
     });
 });
 
