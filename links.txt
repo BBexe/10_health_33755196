@@ -1,0 +1,8 @@
+home=https://www.doc.gold.ac.uk/usr/424/
+about=https://www.doc.gold.ac.uk/usr/424/about
+dashboard=https://www.doc.gold.ac.uk/usr/424/dashboard
+social=https://www.doc.gold.ac.uk/usr/424/social
+routines_list=https://www.doc.gold.ac.uk/usr/424/routines
+create_routine=https://www.doc.gold.ac.uk/usr/424/routines/new
+login=https://www.doc.gold.ac.uk/usr/424/users/login
+register=https://www.doc.gold.ac.uk/usr/424/users/register
